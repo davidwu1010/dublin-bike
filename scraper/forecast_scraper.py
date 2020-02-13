@@ -16,7 +16,7 @@ class Forecast(Base):
 
 def scrape():
     host = 'database-1.cmv75f0i1uzy.eu-west-1.rds.amazonaws.com'
-    engine = create_engine(f"mysql://dev:qwerty@{host}/development")
+    engine = create_engine(f"mysql+pymysql://dev:qwerty@{host}/development")
     Base.metadata.create_all(engine)  # Create table
     Session = sessionmaker(bind=engine)
     session = Session()
