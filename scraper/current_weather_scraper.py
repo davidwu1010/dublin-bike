@@ -7,7 +7,7 @@ def scrape():
 
     city = "dublin,ie"
     key = "e1e57d828ca04314a28b8bb9e9ad0a90"
-    url = "https://api.weatherbit.io/v2.0/current?city={}&key={}".format(city, key)
+    url = f'https://api.weatherbit.io/v2.0/current?city={city}&key={key}'
 
     try:
         req = requests.get(url)
@@ -15,7 +15,8 @@ def scrape():
         print(e)
         sys.exit(1)
 
-    data = req.json()[0]
+    data = req.json()['data'][0]
+
     temp = data["temp"]
     datetime = data["datetime"]
     weather = data["weather"]
@@ -27,7 +28,7 @@ def scrape():
     try:
         db.session.add(cur_weather_data)
         db.session.commit()
-    except requests.exceptions.RequestException as e:
+    except Exception as e:
         print(e)
         sys.exit(1)
 

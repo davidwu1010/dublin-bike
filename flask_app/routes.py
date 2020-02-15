@@ -1,6 +1,5 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-import flask_app.routes
 
 app = Flask(__name__)
 
@@ -10,7 +9,7 @@ password = "qwerty"
 dbname = "development"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{user}:{password}@{host}/{dbname}'
-db = SQLAlchemy(flask_app.routes.app)
+db = SQLAlchemy(app)
 
 
 
