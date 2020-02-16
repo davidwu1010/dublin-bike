@@ -2,17 +2,22 @@ import requests
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models.schemas import Base, Forecast
+from config import MySQL, APIKeys
 
 
 def scrape():
-    host = 'database-1.cmv75f0i1uzy.eu-west-1.rds.amazonaws.com'
-    engine = create_engine(f'mysql+pymysql://dev:qwerty@{host}/development')
+    host = MySQL.host
+    user = MySQL.username
+    password = MySQL.password
+    database = MySQL.database
+
+    engine = create_engine(f'mysql+pymysql://{user}:{password}@{host}/{database}')
     Base.metadata.create_all(engine)  # Create table
     Session = sessionmaker(bind=engine)
     session = Session()
 
     parameters = {'city': 'Dublin', 'country': 'IE', 'hours': '6',
-                  'key': '9045a4958d8f45e1a54f6607ff2ed1d2'}
+                  'key': APIKeys.forecast_key}
     api = 'https://api.weatherbit.io/v2.0/forecast/hourly'
 
     response = requests.get(api, params=parameters)
