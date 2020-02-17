@@ -7,9 +7,6 @@ from config import MySQL, APIKeys
 import logging
 
 
-logging.basicConfig(filename='currentWeatherScraper.log',level=logging.DEBUG)
-
-
 def scrape():
 
     city = "dublin,ie"
@@ -37,14 +34,13 @@ def scrape():
     datetimeObj = datetime.datetime.strptime(datetimeStr, '%Y-%m-%d:%H')
     weekday = datetimeObj.isoweekday()
 
-
     try:
         engine = create_engine(f'mysql+pymysql://{MySQL.username}:{MySQL.password}@{MySQL.host}/{MySQL.database}')
         Base.metadata.create_all(engine)  # Create table
         Session = sessionmaker(bind=engine)
         session = Session()
 
-        # Only add new row to DB if the datetime(key) is not exist
+        # Only add new row to table of DB if the datetime(key) is not exist
         isDateTimeExist = session.query(exists().where(Current_weather.datetime == datetimeObj)).scalar()
         if isDateTimeExist == False:
 
@@ -54,6 +50,7 @@ def scrape():
     except Exception as e:
         logging.error(e)
 
+logging.basicConfig(filename='currentWeatherScraper.log',level=logging.DEBUG)
 scrape()
 
 
