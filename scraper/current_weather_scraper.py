@@ -1,35 +1,61 @@
 import requests
-import sys
-from flask_app.routes import db
-from scraper.models import Current_weather
+import datetime
+from sqlalchemy import create_engine, exists
+from sqlalchemy.orm import sessionmaker
+from models.schemas import Base, Current_weather
+from config import MySQL, APIKeys
+import logging
+
+
+logging.basicConfig(filename='currentWeatherScraper.log',level=logging.DEBUG)
+
 
 def scrape():
 
     city = "dublin,ie"
-    key = "e1e57d828ca04314a28b8bb9e9ad0a90"
-    url = f'https://api.weatherbit.io/v2.0/current?city={city}&key={key}'
+    url = f'https://api.weatherbit.io/v2.0/current?city={city}&key={APIKeys.weather_key}'
 
     try:
-        req = requests.get(url)
+        res = requests.get(url)
+        res.raise_for_status()
     except requests.exceptions.RequestException as e:
-        print(e)
-        sys.exit(1)
+        logging.error(e)
 
-    data = req.json()['data'][0]
-
+    data = res.json()['data'][0]
     temp = data["temp"]
-    datetime = data["datetime"]
+    datetimeStr = data["datetime"]
+    lon = data["lon"]
+    lat = data["lat"]
+    wind_spd = data["wind_spd"]
+    clouds = data["clouds"]
+    sunset = data["sunset"]
     weather = data["weather"]
     icon = weather["icon"]
+    code = weather["code"]
     description = weather["description"]
 
-    cur_weather_data = Current_weather(datetime, temp, description, icon)
+    datetimeObj = datetime.datetime.strptime(datetimeStr, '%Y-%m-%d:%H')
+    weekday = datetimeObj.isoweekday()
+
 
     try:
-        db.session.add(cur_weather_data)
-        db.session.commit()
+        engine = create_engine(f'mysql+pymysql://{MySQL.username}:{MySQL.password}@{MySQL.host}/{MySQL.database}')
+        Base.metadata.create_all(engine)  # Create table
+        Session = sessionmaker(bind=engine)
+        session = Session()
+
+        # Only add new row to DB if the datetime(key) is not exist
+        isDateTimeExist = session.query(exists().where(Current_weather.datetime == datetimeObj)).scalar()
+        if isDateTimeExist == False:
+
+            session.add(Current_weather(datetimeObj, lon, lat, temp, wind_spd, clouds, sunset, description, code, icon, weekday))
+            session.commit()
+
     except Exception as e:
-        print(e)
-        sys.exit(1)
+        logging.error(e)
 
 scrape()
+
+
+
+
