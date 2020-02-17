@@ -25,5 +25,5 @@ class DublinBike(Base):
     available_bike_stand = Column(Integer)
     available_bike = Column(Integer)
     status = Column(String(16))
-    banking = Column(Boolean())
+    banking = Column(Boolean)
     bonus = Column(Boolean)
