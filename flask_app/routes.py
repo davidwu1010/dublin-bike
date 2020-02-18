@@ -1,5 +1,5 @@
-from flask import Flask, render_template
-from models.schemas import Forecast
+from flask import Flask, render_template, jsonify
+from models.schemas import Forecast, Current_weather
 from flask_sqlalchemy import SQLAlchemy
 import config
 
@@ -14,14 +14,21 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/api/forecast/')
+@app.route('/api/forecasts/')
 def get_forecast():
-    return '0'
+    forecasts = db.session.query(Forecast).all()
+    return jsonify({
+        'data': [forecast.serialize for forecast in forecasts]
+    })
 
 
 @app.route('/api/current-weather/')
 def get_current_weather():
-    return '1'
+    current_weather = db.session.query(Current_weather).\
+        order_by(Current_weather.datetime.desc()).first()
+    return jsonify({
+        'data': current_weather.serialize
+    })
 
 
 @app.route('/api/stations/')
