@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify
-from models.schemas import Forecast, Current_weather
+from models.schemas import Forecast, CurrentWeather
 from flask_sqlalchemy import SQLAlchemy
 import config
 
@@ -24,8 +24,8 @@ def get_forecast():
 
 @app.route('/api/current-weather/')
 def get_current_weather():
-    current_weather = db.session.query(Current_weather).\
-        order_by(Current_weather.datetime.desc()).first()
+    current_weather = db.session.query(CurrentWeather).\
+        order_by(CurrentWeather.datetime.desc()).first()
     return jsonify({
         'data': current_weather.serialize
     })
