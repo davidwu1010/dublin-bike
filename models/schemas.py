@@ -12,6 +12,15 @@ class Forecast(Base):
     description = Column(String(30))
     icon = Column(String(30))
 
+    @property
+    def serialize(self):
+        return {
+            'timestamp': self.timestamp,
+            'temperature': self.temperature,
+            'description': self.description,
+            'icon': self.icon
+        }
+
 
 class Current_weather(Base):
     __tablename__ = 'current_weather'
@@ -39,6 +48,21 @@ class Current_weather(Base):
         self.code = code
         self.icon = icon
         self.weekday = weekday
+
+    @property
+    def serialize(self):
+        return {
+            'datetime': self.datetime,
+            'temperature': self.temperature,
+            'wind_spd': self.wind_spd,
+            'clouds': self.clouds,
+            'sunset': self.sunset,
+            'description': self.description,
+            'code': self.code,
+            'icon': self.icon,
+            'weekday': self.weekday
+        }
+
 
 class DublinBike(Base):
     __tablename__ = 'dublin_bike'
