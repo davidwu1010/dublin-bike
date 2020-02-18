@@ -14,7 +14,7 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/api/forecasts/')
+@app.route('/api/forecast/')
 def get_forecast():
     forecasts = db.session.query(Forecast).all()
     return jsonify({
