@@ -7,3 +7,4 @@ class MySQL:
 
 class APIKeys:
     forecast_key = '9045a4958d8f45e1a54f6607ff2ed1d2'
+    weather_key = 'e1e57d828ca04314a28b8bb9e9ad0a90'
