@@ -25,7 +25,7 @@ def get_current_weather():
 
 
 @app.route('/api/stations/')
-def get_stations():
+def get_all_stations():
     return '1'
 
 
