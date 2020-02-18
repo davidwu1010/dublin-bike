@@ -1,13 +1,12 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, String, Float, DateTime, Integer, Boolean
-from sqlalchemy import Column, String, Integer, Float, Boolean
+from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime
 
 Base = declarative_base()
 
 
 class Forecast(Base):
     __tablename__ = 'forecasts'
-    timestamp = Column(String(30), primary_key=True)
+    timestamp = Column(DateTime, primary_key=True)
     temperature = Column(String(10))
     description = Column(String(30))
     icon = Column(String(30))
@@ -22,7 +21,7 @@ class Forecast(Base):
         }
 
 
-class Current_weather(Base):
+class CurrentWeather(Base):
     __tablename__ = 'current_weather'
     datetime = Column(DateTime(30), primary_key=True, nullable=False)
     temperature = Column(String(30), nullable=False)
@@ -34,7 +33,7 @@ class Current_weather(Base):
     clouds = Column(Float(30))
     sunset = Column(String(30))
     code = Column(String(30))
-    weekday = Column(Integer())
+    weekday = Column(Integer)
 
     def __init__(self, datetime, lon, lat, temperature, wind_spd, clouds, sunset, description, code, icon, weekday):
         self.datetime = datetime

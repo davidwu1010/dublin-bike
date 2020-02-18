@@ -2,7 +2,7 @@ import requests
 import datetime
 from sqlalchemy import create_engine, exists
 from sqlalchemy.orm import sessionmaker
-from models.schemas import Base, Current_weather
+from models.schemas import Base, CurrentWeather
 from config import MySQL, APIKeys
 
 
@@ -38,10 +38,10 @@ def scrape():
         weekday = datetimeObj.isoweekday()
 
         # Only add new row to table of DB if the datetime(key) is not exist
-        isDateTimeExist = session.query(exists().where(Current_weather.datetime == datetimeObj)).scalar()
+        isDateTimeExist = session.query(exists().where(CurrentWeather.datetime == datetimeObj)).scalar()
         if isDateTimeExist == False:
 
-            session.add(Current_weather(datetimeObj, lon, lat, temp, wind_spd, clouds, sunset, description, code, icon, weekday))
+            session.add(CurrentWeather(datetimeObj, lon, lat, temp, wind_spd, clouds, sunset, description, code, icon, weekday))
             session.commit()
 
 if __name__ == '__main__':
