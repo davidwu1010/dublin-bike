@@ -26,14 +26,39 @@
 <!--The div element for the map -->
 <div id="map"></div>
 <script>
-    'use strict'
+    'use strict';
+
+    function renderInfoContent(data) {
+        let content = `
+                        <div>
+                            <ul>
+                                <li>Address: ${data.address}</li>
+                                <li>Total bike stand: ${data.bike_stand.toString()}</li>
+                                <li>Available stand: ${data.available_bike_stand.toString()}</li>
+                                <li>Available Bike: ${data.available_bike.toString()}</li>
+                                <li>Banking: ${data.banking.toString()}</li>
+                            </ul>
+                        </div>
+                        `;
+        return content;
+    }
+
+    function showInfoWindow(id) {
+        $.getJSON('api/stations/' + id, data => {
+            data = data.data;
+            infowindow.setContent(renderInfoContent(data));
+            infowindow.open(map, markers.get(id));
+        });
+    }
+
     var initMap = () => {
         this.map = new google.maps.Map(
             document.getElementById('map'), {
                 zoom: 12,
-                center: {lat: 53.342964, lng: -6.286889}
+                center: {lat: 53.342964, lng: -6.286889}  // dublin center
             });
-        this.markers = new Map();
+
+        this.markers = new Map();  // HashMap not Google Map
         $.getJSON('api/stations/', data => {
             for (const station of data.data) {
                 const marker = new google.maps.Marker({
@@ -47,13 +72,13 @@
                 markers.set(station.number, marker);
             }
 
-            this.infowindow = new google.maps.InfoWindow({content: '<div>1234</div>'});
-            for (const marker of markers.values()) {
-                marker.addListener('click', () => {
-                    infowindow.open(map, marker);
-                });
+            this.infowindow = new google.maps.InfoWindow();
+            for (const pair of markers) {
+                let [id, marker] = pair;
+                marker.addListener('click', showInfoWindow.bind(null, id));
             }
         });
+
     };
 
 
