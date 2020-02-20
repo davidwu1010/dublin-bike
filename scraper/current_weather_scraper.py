@@ -2,7 +2,7 @@ import requests
 import datetime
 from sqlalchemy import create_engine, exists
 from sqlalchemy.orm import sessionmaker
-from models.schemas import Base, CurrentWeather
+from models.schemas import Base, CurrentWeather, StaticBike
 from config import MySQL, APIKeys
 
 
@@ -13,36 +13,43 @@ def scrape():
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    city = "dublin,ie"
-    url = f'https://api.weatherbit.io/v2.0/current?city={city}&key={APIKeys.weather_key}'
+    # fetch all stations info from database
+    stations = session.query(StaticBike)
 
-    response = requests.get(url)
-    response.raise_for_status()
+    if stations:
+        for station in stations:
 
-    if response:
+            url = f'https://api.weatherbit.io/v2.0/current?lat={station.latitude}&lon={station.longitude}&key={APIKeys.weather_key}'
+            response = requests.get(url)
+            response.raise_for_status()
 
-        data = response.json()['data'][0]
-        temp = data["temp"]
-        datetimeStr = data["datetime"]
-        lon = data["lon"]
-        lat = data["lat"]
-        wind_spd = data["wind_spd"]
-        clouds = data["clouds"]
-        sunset = data["sunset"]
-        weather = data["weather"]
-        icon = weather["icon"]
-        code = weather["code"]
-        description = weather["description"]
+            if response:
 
-        datetimeObj = datetime.datetime.strptime(datetimeStr, '%Y-%m-%d:%H')
-        weekday = datetimeObj.isoweekday()
+                data = response.json()['data'][0]
+                temp = data["temp"]
+                datetimeStr = data["datetime"]
+                lon = data["lon"]
+                lat = data["lat"]
+                wind_spd = data["wind_spd"]
+                clouds = data["clouds"]
+                sunset = data["sunset"]
+                weather = data["weather"]
+                icon = weather["icon"]
+                code = weather["code"]
+                description = weather["description"]
 
-        # Only add new row to table of DB if the datetime(key) is not exist
-        isDateTimeExist = session.query(exists().where(CurrentWeather.datetime == datetimeObj)).scalar()
-        if isDateTimeExist == False:
+                datetimeObj = datetime.datetime.strptime(datetimeStr, '%Y-%m-%d:%H')
+                weekday = datetimeObj.isoweekday()
 
-            session.add(CurrentWeather(datetimeObj, lon, lat, temp, wind_spd, clouds, sunset, description, code, icon, weekday))
-            session.commit()
+                # Only add new row to table of DB if the datetime(key) is not exist
+                isDateTimeExist = session.query(exists().where(CurrentWeather.datetime == datetimeObj).where(CurrentWeather.stationNum == station.number)).scalar()
+
+                if isDateTimeExist == False:
+                    session.add(CurrentWeather(station.number, datetimeObj, lon, lat, temp, wind_spd, clouds, sunset, description, code, icon, weekday))
+                    session.commit()
+
+    else:
+        print('Can not find stations')
 
 if __name__ == '__main__':
     scrape()
