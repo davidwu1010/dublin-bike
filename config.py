@@ -3,6 +3,7 @@ class MySQL:
     username = 'dev'
     password = 'qwerty'
     database = 'development'
+    URI = f'mysql+pymysql://{username}:{password}@{host}/{database}'
 
 
 class APIKeys:
