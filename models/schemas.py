@@ -106,4 +106,14 @@ class StaticBike(Base):
     latitude = Column(Float)
     longitude = Column(Float)
 
+    @property
+    def serialize(self):
+        return {
+            'number': self.number,
+            'name': self.name,
+            'address': self.address,
+            'latitude': self.latitude,
+            'longitude': self.longitude
+        }
+
 
