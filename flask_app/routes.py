@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify
-from models.schemas import Forecast, CurrentWeather, DublinBike
+from models.schemas import Forecast, CurrentWeather, DublinBike, StaticBike
 from flask_sqlalchemy import SQLAlchemy
 import config
 
@@ -31,6 +31,13 @@ def get_current_weather():
         'data': current_weather.serialize
     })
 
+
+@app.route('/api/stations/')
+def get_static_stations():
+    static_stations = db.session.query(StaticBike).all()
+    return jsonify({
+        'data': [station.serialize for station in static_stations]
+    })
 
 @app.route('/api/stations/')
 def get_all_stations():

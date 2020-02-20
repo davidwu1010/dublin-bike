@@ -1,7 +1,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime
 
-Base = declarative_base( )
+Base = declarative_base()
 
 
 class Forecast(Base):
@@ -96,4 +96,24 @@ class DublinBike(Base):
             'banking': self.banking,
             'bonus': self.bonus
         }
+
+class StaticBike(Base):
+    __tablename__ = 'static_bike'
+    __table_args__ = {'sqlite_autoincrement': True}
+    number = Column(Integer, primary_key=True, nullable=False)
+    name = Column(String(64))
+    address = Column(String(64))
+    latitude = Column(Float)
+    longitude = Column(Float)
+
+    @property
+    def serialize(self):
+        return {
+            'number': self.number,
+            'name': self.name,
+            'address': self.address,
+            'latitude': self.latitude,
+            'longitude': self.longitude
+        }
+
 
