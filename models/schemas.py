@@ -1,7 +1,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime
 
-Base = declarative_base()
+Base = declarative_base( )
 
 
 class Forecast(Base):
@@ -78,3 +78,22 @@ class DublinBike(Base):
     status = Column(String(16))
     banking = Column(Boolean)
     bonus = Column(Boolean)
+
+    @property
+    def serialize(self):
+        return {
+            'scraping_time': self.scraping_time,
+            'number': self.number,
+            'last_update': self.last_update,
+            'address': self.address,
+            'site_names': self.site_names,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+            'bike_stand': self.bike_stand,
+            'available_bike_stand': self.available_bike_stand,
+            'available_bike': self.available_bike,
+            'status': self.status,
+            'banking': self.banking,
+            'bonus': self.bonus
+        }
+
