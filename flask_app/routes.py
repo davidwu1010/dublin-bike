@@ -39,19 +39,6 @@ def get_static_stations():
         'data': [station.serialize for station in static_stations]
     })
 
-@app.route('/api/stations/')
-def get_all_stations():
-    stations_list = []
-    all_stations = db.session.query(DublinBike.number, DublinBike.site_names, DublinBike.latitude,
-                                    DublinBike.longitude).distinct().all()
-    for station in all_stations:
-        station_dict = {'number': station.number, 'site_names': station.site_names, 'latitude': station.latitude,
-                        'longitude': station.longitude}
-        stations_list.append(station_dict)
-    return jsonify({
-        'data': stations_list
-    })
-
 
 @app.route('/api/stations/<int:station_id>')
 def get_station(station_id):
