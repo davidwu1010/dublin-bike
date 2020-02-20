@@ -22,7 +22,6 @@ def scrape():
     parameters = {'contract': 'dublin', 'apiKey': APIKeys.bike_API}
 
     response = requests.get(api, verify=True, params=parameters)
-    api = 'https://api.weatherbit.io/v2.0/forecast/hourly'
 
     response.raise_for_status()  # throw an error if made a bad request
 
