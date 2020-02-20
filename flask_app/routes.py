@@ -46,7 +46,7 @@ def get_all_stations():
     })
 
 
-@app.route('/api/stations/<int:id>')
+@app.route('/api/stations/<int:station_id>')
 def get_station(station_id):
     station = db.session.query(DublinBike).filter(DublinBike.number == station_id). \
         order_by(DublinBike.scraping_time.desc()).first()
