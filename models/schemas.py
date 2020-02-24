@@ -7,9 +7,12 @@ Base = declarative_base()
 class Forecast(Base):
     __tablename__ = 'forecasts'
     timestamp = Column(DateTime, primary_key=True)
+    stationNum = Column(Integer, primary_key=True)
     temperature = Column(String(10))
     description = Column(String(30))
     icon = Column(String(30))
+    lon = Column(Float(30))
+    lat = Column(Float(30))
 
     @property
     def serialize(self):
@@ -17,12 +20,16 @@ class Forecast(Base):
             'timestamp': self.timestamp,
             'temperature': self.temperature,
             'description': self.description,
-            'icon': self.icon
+            'icon': self.icon,
+            'stationNum': self.stationNum,
+            'lon': self.lon,
+            'lat': self.lat
         }
 
 
 class CurrentWeather(Base):
     __tablename__ = 'current_weather'
+    stationNum = Column(Integer, primary_key=True)
     datetime = Column(DateTime(30), primary_key=True, nullable=False)
     temperature = Column(String(30), nullable=False)
     description = Column(String(30))
@@ -35,7 +42,8 @@ class CurrentWeather(Base):
     code = Column(String(30))
     weekday = Column(Integer)
 
-    def __init__(self, datetime, lon, lat, temperature, wind_spd, clouds, sunset, description, code, icon, weekday):
+    def __init__(self, stationNum, datetime, lon, lat, temperature, wind_spd, clouds, sunset, description, code, icon, weekday):
+        self.stationNum = stationNum
         self.datetime = datetime
         self.lon = lon
         self.lat = lat
