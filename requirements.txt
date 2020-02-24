@@ -1,3 +1,4 @@
+numpy
 apscheduler
 requests
 PyMySQL==0.9.3

@@ -78,3 +78,42 @@ class DublinBike(Base):
     status = Column(String(16))
     banking = Column(Boolean)
     bonus = Column(Boolean)
+
+    @property
+    def serialize(self):
+        return {
+            'scraping_time': self.scraping_time,
+            'number': self.number,
+            'last_update': self.last_update,
+            'address': self.address,
+            'site_names': self.site_names,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+            'bike_stand': self.bike_stand,
+            'available_bike_stand': self.available_bike_stand,
+            'available_bike': self.available_bike,
+            'status': self.status,
+            'banking': self.banking,
+            'bonus': self.bonus
+        }
+
+class StaticBike(Base):
+    __tablename__ = 'static_bike'
+    __table_args__ = {'sqlite_autoincrement': True}
+    number = Column(Integer, primary_key=True, nullable=False)
+    name = Column(String(64))
+    address = Column(String(64))
+    latitude = Column(Float)
+    longitude = Column(Float)
+
+    @property
+    def serialize(self):
+        return {
+            'number': self.number,
+            'name': self.name,
+            'address': self.address,
+            'latitude': self.latitude,
+            'longitude': self.longitude
+        }
+
+

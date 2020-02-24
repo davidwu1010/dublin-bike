@@ -1,10 +1,90 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous">
+    </script>
+    <style>
+        /* Always set the map height explicitly to define the size of the div
+         * element that contains the map. */
+        #map {
+            height: 100%;
+        }
+
+        /* Optional: Makes the sample page fill the window. */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <title>Dublin Bikes</title>
 </head>
 <body>
-Howdy ho!
+<!--The div element for the map -->
+<div id="map"></div>
+<script>
+    'use strict';
+
+    function renderInfoContent(data) {
+        let content = `
+                        <div>
+                            <ul>
+                                <li>Address: ${data.address}</li>
+                                <li>Total bike stand: ${data.bike_stand.toString()}</li>
+                                <li>Available stand: ${data.available_bike_stand.toString()}</li>
+                                <li>Available Bike: ${data.available_bike.toString()}</li>
+                                <li>Banking: ${data.banking.toString()}</li>
+                            </ul>
+                        </div>
+                        `;
+        return content;
+    }
+
+    function showInfoWindow(id) {
+        $.getJSON('api/stations/' + id, data => {
+            data = data.data;
+            infowindow.setContent(renderInfoContent(data));
+            infowindow.open(map, markers.get(id));
+        });
+    }
+
+    var initMap = () => {
+        this.map = new google.maps.Map(
+            document.getElementById('map'), {
+                zoom: 12,
+                center: {lat: 53.342964, lng: -6.286889}  // dublin center
+            });
+
+        this.markers = new Map();  // HashMap not Google Map
+        $.getJSON('api/stations/', data => {
+            for (const station of data.data) {
+                const marker = new google.maps.Marker({
+                    position: {
+                        lat: station.latitude,
+                        lng: station.longitude
+                    },
+                    map: map,
+                    title: station.site_names
+                });
+                markers.set(station.number, marker);
+            }
+
+            this.infowindow = new google.maps.InfoWindow();
+            for (const pair of markers) {
+                let [id, marker] = pair;
+                marker.addListener('click', showInfoWindow.bind(null, id));
+            }
+        });
+
+    };
+
+
+</script>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAFP5d_7EMWgLSyTTuCvpYcUU--AQ239So&callback=initMap">
+</script>
 </body>
 </html>
