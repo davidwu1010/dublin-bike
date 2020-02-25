@@ -27,7 +27,7 @@ def scrape():
 
     if response:
         response = response.json()
-        dt = str(datetime.now())
+        dt = datetime.now()
         for row in response:
             scraping_time = str(dt)
             number = row["number"]
@@ -57,7 +57,9 @@ def scrape():
                                    bonus=bonus))
 
         session.commit()
+        return dt
 
 
 if __name__ == '__main__':
     scrape()
+    ##???(dt)
