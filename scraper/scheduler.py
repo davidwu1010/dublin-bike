@@ -21,8 +21,13 @@ signal.signal(signal.SIGTERM, signal_handler)  # trap SIGTERM (kill)
 logging.basicConfig(filename='scraper.log', filemode='a')
 logging.getLogger("apscheduler").setLevel(logging.DEBUG)
 
+
+def bike_weather_scraper():
+    scraping_time = dublin_bike_data.scrape()
+    current_weather_scraper.scrape(scraping_time)
+
+
 scheduler = BlockingScheduler()
 scheduler.add_job(forecast_scraper.scrape, 'interval', hours=1)
-scheduler.add_job(dublin_bike_data.scrape, 'interval', minutes=5)
-scheduler.add_job(current_weather_scraper.scrape, 'interval', minutes=5)
+scheduler.add_job(bike_weather_scraper, 'interval', minutes=5)
 scheduler.start()
