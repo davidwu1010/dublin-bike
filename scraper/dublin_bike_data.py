@@ -27,9 +27,9 @@ def scrape():
 
     if response:
         response = response.json()
-        dt = str(datetime.now())
+        dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         for row in response:
-            scraping_time = str(dt)
+            scraping_time = dt
             number = row["number"]
             last_update = datetime.fromtimestamp(row["last_update"] / 1000)
             site_names = row["name"]
@@ -57,6 +57,7 @@ def scrape():
                                    bonus=bonus))
 
         session.commit()
+        return dt
 
 
 if __name__ == '__main__':
