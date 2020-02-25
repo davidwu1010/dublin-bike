@@ -52,11 +52,3 @@ def scrape(craperDatetime):
 
     else:
         print('Can not find stations')
-
-if __name__ == '__main__':
-    scrape("2020-02-25 10")
-
-
-
-
-
