@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
     <link rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
@@ -25,7 +29,8 @@
         /* Always set the map height explicitly to define the size of the div
          * element that contains the map. */
         #map {
-            height: 100%;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
         /* Optional: Makes the sample page fill the window. */
@@ -34,12 +39,56 @@
             margin: 0;
             padding: 0;
         }
+
+        #sidebar {
+            z-index: 9999;
+        }
     </style>
     <title>Dublin Bikes</title>
 </head>
-<body>
+<body class="overflow-hidden">
 <!--The div element for the map -->
-<div id="map"></div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3 p-0" id="sidebar">
+            <ul class="list-group-flush p-0 overflow-auto vh-100">
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+                <li class="list-group-item">12345</li>
+            </ul>
+        </div>
+        <div class="col-9" id="map"></div>
+    </div>
+</div>
 <script>
     'use strict';
 
