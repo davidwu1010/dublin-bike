@@ -17,14 +17,20 @@ class Forecast(Base):
     @property
     def serialize(self):
         return {
-            'timestamp': self.timestamp,
-            'temperature': self.temperature,
-            'description': self.description,
-            'icon': self.icon,
-            'stationNum': self.stationNum,
+            'datetime': self.timestamp,
             'lon': self.lon,
-            'lat': self.lat
+            'lat': self.lat,
+            'temperature': self.temperature,
+            'wind_spd': 0,
+            'clouds': 0,
+            'sunset': "00:00",
+            'description': self.description,
+            'code': "",
+            'icon': self.icon,
+            'weekday': 0
         }
+
+
 
 
 class CurrentWeather(Base):
@@ -60,6 +66,8 @@ class CurrentWeather(Base):
     def serialize(self):
         return {
             'datetime': self.datetime,
+            'lon': self.lon,
+            'lat': self.lat,
             'temperature': self.temperature,
             'wind_spd': self.wind_spd,
             'clouds': self.clouds,
