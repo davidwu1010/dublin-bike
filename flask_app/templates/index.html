@@ -51,39 +51,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-3 p-0" id="sidebar">
-            <ul class="list-group-flush p-0 overflow-auto vh-100">
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
-                <li class="list-group-item">12345</li>
+            <ul class="list-group-flush p-0 overflow-auto vh-100" id="list">
             </ul>
         </div>
         <div class="col-9" id="map"></div>
@@ -92,58 +60,90 @@
 <script>
     'use strict';
 
-    function renderInfoContent(data) {
-        let content = `
-                        <div>
-                            <ul>
-                                <strong>${data.site_names}</strong>
-                                <li>Address: ${data.address}</li>
-                                <li>Total bike stand: ${data.bike_stand.toString()}</li>
-                                <li>Available stand: ${data.available_bike_stand.toString()}</li>
-                                <li>Available Bike: ${data.available_bike.toString()}</li>
-                                <li>Banking: ${data.banking.toString()}</li>
-                            </ul>
-                        </div>
-                        `;
-        return content;
+    var sideBarStatus = 'list';  // status can be list or details
+
+    function clickHandler(id) {  // handler for click on markers or list items
+        console.log(id);
+        showDetails(id);
     }
 
-    function showInfoWindow(id) {
-        $.getJSON('api/stations/' + id, data => {
-            data = data.data;
-            infowindow.setContent(renderInfoContent(data));
-            infowindow.open(map, markers.get(id));
-        });
+    function showDetails(id) {
+
+    }
+
+    function showList(data) {
+        function renderListItem(station) {
+            let availability;
+            if (station.status === 'OPEN') {
+                const availableBikes = station.available_bike.toString();
+                const bikeStand = station.bike_stand.toString();
+                availability = `${availableBikes}/${bikeStand} bikes available`;
+            } else {
+                availability = "Closed";
+            }
+
+            const stationNumber = station.number.toString();
+            const content = `
+            <li class="list-group-item" id="station-${stationNumber}">
+                <ul>
+                    <li>${station.address}</li>
+                    <li>${availability}</li>
+                </ul>
+            </li>
+            `;
+            return content;
+        }
+
+
+        sideBarStatus = 'list';
+        let listItems = '';
+        for (const station of data.data) {
+            listItems += renderListItem(station);
+        }
+
+        const list = $('#list');
+        list.html(listItems);
+        const items = list.children();
+        for (const li of items) {
+            const id = parseInt(li.id.split('-')[1]);
+            li.addEventListener('click', () => clickHandler(id));
+        }
     }
 
     var initMap = () => {
         this.map = new google.maps.Map(
             document.getElementById('map'), {
-                zoom: 12,
+                zoom: 15,
                 center: {lat: 53.342964, lng: -6.286889}  // dublin center
             });
 
-        this.markers = new Map();  // HashMap not Google Map
+        this.circles = new Map();  // HashMap not Google Map
         $.getJSON('api/stations/', data => {
             for (const station of data.data) {
-                const marker = new google.maps.Marker({
-                    position: {
+                const color = station.available_bike / station.bike_stand < 0.7
+                    ? 'green' : 'red';
+                const circle = new google.maps.Circle({
+                    strokeColor: 'white',
+                    strokeOpacity: 0.4,
+                    fillColor: color,
+                    fillOpacity: 0.6,
+                    map: this.map,
+                    center: {
                         lat: station.latitude,
                         lng: station.longitude
                     },
-                    map: map,
-                    title: station.site_names
+                    radius: station.bike_stand * 2
                 });
-                markers.set(station.number, marker);
+                circles.set(station.number, circle);
             }
 
-            this.infowindow = new google.maps.InfoWindow();
-            for (const pair of markers) {
-                let [id, marker] = pair;
-                marker.addListener('click', showInfoWindow.bind(null, id));
+            for (const pair of circles) {
+                let [id, circle] = pair;
+                circle.addListener('click', () => clickHandler(id));
             }
+
+            showList(data);
         });
-
     };
 
 
