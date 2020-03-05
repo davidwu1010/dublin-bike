@@ -13,6 +13,10 @@ db = SQLAlchemy(app)
 def index():
     return render_template('index.html')
 
+@app.route('/station')
+def station():
+    return render_template('station.html')
+
 
 @app.route('/api/forecasts/<int:station_id>')
 def get_forecasts(station_id):
