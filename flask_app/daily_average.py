@@ -1,4 +1,3 @@
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models.schemas import Base, DublinBike
@@ -19,8 +18,8 @@ session = sessionmaker()
 session.configure(bind=engine)
 s = session()
 
-def create_chart(number_input ):
 
+def get_daily_mean_json(number_input):
     query = "SELECT scraping_time, number, address,\
              site_names, latitude, longitude,\
              bike_stand, available_bike_stand,available_bike\
@@ -32,14 +31,12 @@ def create_chart(number_input ):
                            params={'number': number_input},
                            parse_dates=['scraping_time'])
 
-    df["hour"] = df["scraping_time"].dt.hour
-    hourly_mean = df.groupby("hour").mean()
+    df["day_of_week"] = df["scraping_time"].dt.dayofweek
 
-    capacity = df.loc[0,"bike_stand"]
+    day_mean = df.groupby("day_of_week").mean().reset_index().sort_values("day_of_week")
+    days = {0: 'Mon', 1: 'Tue', 2: 'Wed', 3: 'Thu', 4: 'Fri', 5: 'Sat', 6: 'Sun'}
+    day_mean['day_of_week'] = day_mean['day_of_week'].apply(lambda x: days[x])
 
-    fig, ax = plt.subplots()
-    plt.bar(list(hourly_mean.index), hourly_mean["available_bike"])
-    plt.xticks(np.arange(0, 23, step=2))
-    plt.yticks(np.arange(0, capacity, step=2))
+    return day_mean.to_json(orient='records')
 
-    return fig
+

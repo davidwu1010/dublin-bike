@@ -25,6 +25,9 @@
             integrity="sha256-TQq84xX6vkwR0Qs1qH5ADkP+MvH0W+9E7TdHJsoIQiM="
             crossorigin="anonymous">
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js">
+    </script>>
+
     <style>
         /* Always set the map height explicitly to define the size of the div
          * element that contains the map. */
@@ -35,7 +38,7 @@
 
         /* Optional: Makes the sample page fill the window. */
         html, body {
-            height: 100%;
+            height: 90%;
             margin: 0;
             padding: 0;
             font-size: 16px;
@@ -101,14 +104,124 @@
 <body class="overflow-hidden">
 <!--The div element for the map -->
 <div class="container-fluid">
+
     <div class="row">
         <div class="col-3 p-0 vh-100" id="sidebar"></div>
         <div class="col-9" id="map"></div>
     </div>
+
 </div>
 </body>
 <script>
     'use strict';
+
+    function showHourly(id) {
+
+        $.getJSON('api/hourly/'+ id, hourly_data => {
+
+            var labels = hourly_data.map(function(item) {
+                return item.hour;
+            });
+
+            var data = hourly_data.map(function(item) {
+                return item.available_bike;
+            });
+
+            createHourlyChart(labels, data);
+        });
+    }
+
+    function showDaily(id) {
+
+        $.getJSON('api/daily/'+ id, daily_data => {
+
+            var labels = daily_data.map(function(item) {
+                return item.day_of_week;
+            });
+
+            var data = daily_data.map(function(item) {
+                return item.available_bike;
+            });
+
+            createDailyChart(labels, data);
+        });
+    }
+
+    function createHourlyChart(labels, data) {
+        var chartConfig = {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Hourly Average Bike',
+                    data: data,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                    }]
+            },
+            options: {
+                legend: {
+                    display: false
+                },
+                title:{
+                    position: 'top',
+                    display: true,
+                    text: 'Hourly Average Bike Available'
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        };
+        var ctx = document.getElementById("hourly-chart").getContext('2d');
+
+        var myHourlyChart = new Chart(ctx, chartConfig);
+
+    }
+
+    function createDailyChart(labels, data) {
+        console.log(data);
+        console.log(labels);
+        var chartConfig = {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Daily Average Bike',
+                    data: data,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                    }]
+            },
+            options: {
+                legend: {
+                    display: false
+                },
+                title:{
+                    position: 'top',
+                    display: true,
+                    text: 'Daily Average Bike Available'
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        };
+        var ctx = document.getElementById("daily-chart").getContext('2d');
+
+        var myDailyChart = new Chart(ctx, chartConfig);
+
+    }
 
     function clickHandler(id) {  // handler for click on markers or list items
         console.log(id);
