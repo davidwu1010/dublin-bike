@@ -1,8 +1,12 @@
+import json
+
 from flask import Flask, render_template, jsonify
-from models.schemas import Forecast, CurrentWeather, DublinBike, StaticBike
+from models.schemas import Forecast, CurrentWeather, DublinBike
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 import config
+from hourly_average import get_hourly_mean_json
+from daily_average import get_daily_mean_json
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = config.MySQL.URI
@@ -19,7 +23,7 @@ def index():
 def get_forecasts(station_id):
     forecasts = db.session.query(Forecast) \
         .filter(Forecast.stationNum == station_id) \
-        .order_by(Forecast.timestamp.asc()).all()
+        .order_by(Forecast.timestamp.asc( )).all( )
     return jsonify({
         'data': [forecast.serialize for forecast in forecasts]
     })
@@ -29,7 +33,7 @@ def get_forecasts(station_id):
 def get_current_weather(station_id):
     current_weather = db.session.query(CurrentWeather) \
         .filter(CurrentWeather.stationNum == station_id) \
-        .order_by(CurrentWeather.datetime.desc()).first()
+        .order_by(CurrentWeather.datetime.desc( )).first( )
     return jsonify({
         'data': current_weather.serialize
     })
@@ -51,10 +55,21 @@ def get_all_stations():
 def get_station(station_id):
     station = db.session.query(DublinBike) \
         .filter(DublinBike.number == station_id) \
-        .order_by(DublinBike.scraping_time.desc()).first()
+        .order_by(DublinBike.scraping_time.desc( )).first( )
     return jsonify({
         'data': station.serialize
     })
+
+
+@app.route("/api/hourly/<int:station_id>")
+def hourly_chart(station_id):
+    data = get_hourly_mean_json(station_id)
+    return data
+
+@app.route("/api/daily/<int:station_id>")
+def daily_chart(station_id):
+    data = get_daily_mean_json(station_id)
+    return data
 
 
 if __name__ == '__main__':
