@@ -14,9 +14,9 @@ db = SQLAlchemy(app)
 def index():
     return render_template('index.html')
 
-@app.route('/station')
-def station():
-    return render_template('station.html')
+@app.route('/station/<int:station_id>')
+def station(station_id):
+    return render_template('station.html', station_id=station_id)
 
 @app.route('/api/weather/<int:station_id>')
 def get_weather(station_id):
