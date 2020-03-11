@@ -25,6 +25,14 @@
             crossorigin="anonymous">
     </script>
     <style>
+        /* Optional: Makes the sample page fill the window. */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+        }
+
         b {
             font-size: 20px;
         }
@@ -41,7 +49,7 @@
             font-size: 30px;
         }
 
-        img, div {
+        img {
             overflow: hidden;
 <!--            border: 0.5px solid #D3D3D3;-->
         }
@@ -57,11 +65,7 @@
             display: inline-block;
             text-align: center;
             font-size: 30px;
-        }
-
-        #weather {
-            font-size: 12px;
-            text-align: center;
+            overflow: hidden;
         }
 
         img {
@@ -76,15 +80,10 @@
             overflow-x: hidden;
         }
 
-        /* Optional: Makes the sample page fill the window. */
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
-
         #sidebar {
             z-index: 9999;
+            margin: 0;
+            padding: 0;
         }
 
         #station, #occupacity, #weather {
@@ -92,8 +91,12 @@
             margin: 20px 0px 20px 0px;
         }
 
-        #occupacity, #weather {
+        #occupacity, #weather, #chart {
             text-align: center;
+        }
+
+        #weather {
+            font-size: 12px;
         }
 
     </style>
@@ -103,7 +106,7 @@
 <!--The div element for the map -->
 <div class="container-fluid">
     <div class="row">
-        <div class="col-3" id="sidebar">
+        <div class="col-3 p-0" id="sidebar">
             <div class="row" id="icon">
                 <div class="col">
                 <button onclick="location.href='http://127.0.0.1:5000/'" type="button">Dublin_Bike</button>
@@ -122,20 +125,20 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col">
+                        <div class="col-6">
                            <div class="row">
                                <div class="col"> Now</div>
                             </div>
-                            <div class="row" style="padding: 0% 20% 20% 20%">
+                            <div class="row" style="padding: 0% 20% 20% 20%;">
                                <div class="col" id="now_available_bike">
                                </div>
                             </div>
                         </div>
-                        <div class="col" >
+                        <div class="col-6" >
                            <div class="row">
                                <div class="col" >Next Hour</div>
                             </div>
-                            <div class="row" style="padding: 0% 20% 20% 20%">
+                            <div class="row" style="padding: 0% 20% 20% 20%;">
                                <div class="col" id="next_hour_available_bike">
                                </div>
                             </div>
@@ -146,21 +149,28 @@
             <div class="row" id="weather" >
             </div>
             <div class="row" id="chart">
-                <b>Chart</b>
             </div>
         </div>
-<!--        <div class="col-9" id="map"></div>-->
-        <div class="col-9" style="background-color: coral;"></div>
+        <div class="col-9" id="map"></div>
+<!--        <div class="col-9" style="background-color: coral;"></div>-->
     </div>
 </div>
 <script>
-
-    stationId = {{ station_id }};
+    stationId = {{station_id}};
     getStationInfo(stationId);
 
+    function clearContext(){
+        $("#station_info").html("");
+        $("#now_available_bike").html("");
+        $("#next_hour_available_bike").html("");
+        $("#weather").html("");
+    }
+
     function getStationInfo(id) {
+
         $.getJSON('http://127.0.0.1:5000/api/stations/' + id, data => {
             station = data.data;
+            console.log(station);
             if (station.status == 'OPEN'){
                 showStationInfo(station);
                 getWeather(stationId);
@@ -204,10 +214,8 @@
 
         var forecast = weathers.forecast;
         for (i = 0; i < forecast.length && i<= 3; i++) {
-
             var date = new Date(forecast[i].datetime);
             forecast[i].datetime = formatAMPM(date);
-            console.log(forecast[i].datetime)
             weathersContent += renderWeather(forecast[i]);
         }
         $("#weather").append(weathersContent);
@@ -222,9 +230,49 @@
     }
 
 
+    var initMap = () => {
+        this.map = new google.maps.Map(
+            document.getElementById('map'), {
+                zoom: 15,
+                center: {lat: 53.342964, lng: -6.286889}  // dublin center
+            });
+
+        this.circles = new Map();  // HashMap not Google Map
+        $.getJSON('http://127.0.0.1:5000/api/stations/', data => {
+            for (const station of data.data) {
+                const color = station.available_bike / station.bike_stand < 0.7
+                    ? 'green' : 'red';
+                const circle = new google.maps.Circle({
+                    strokeColor: 'white',
+                    strokeOpacity: 0.4,
+                    fillColor: color,
+                    fillOpacity: 0.6,
+                    map: this.map,
+                    center: {
+                        lat: station.latitude,
+                        lng: station.longitude
+                    },
+                    radius: station.bike_stand * 2
+                });
+                circles.set(station.number, circle);
+            }
+
+            for (const pair of circles) {
+                let [id, circle] = pair;
+                circle.addListener('click', () => clickHandler(id));
+            }
+        });
+    };
+
+    function clickHandler(id) {  // handler for click on markers or list items
+        window.location.href = "http://127.0.0.1:5000/station/"+id;
+<!--        initUI();-->
+    }
+
+
 </script>
-<!--<script async defer-->
-<!--        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAFP5d_7EMWgLSyTTuCvpYcUU&#45;&#45;AQ239So&callback=initMap">-->
-<!--</script>-->
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAFP5d_7EMWgLSyTTuCvpYcUU--AQ239So&callback=initMap">
+</script>
 </body>
 </html>
