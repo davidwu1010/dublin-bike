@@ -38,11 +38,63 @@
             height: 100%;
             margin: 0;
             padding: 0;
+            font-size: 16px;
         }
 
-        #sidebar {
-            z-index: 9999;
+        b {
+            font-size: 20px;
         }
+
+        button {
+            width: 100%;
+            height: 60px;
+            border: none;
+            color: white;
+            background-color: #33AAC0;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 30px;
+        }
+
+        img {
+            overflow: hidden;
+        }
+
+        #now_available_bike, #next_hour_available_bike {
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            line-height: 100px;
+            position: relative;
+            background-color: #33AAC0;
+            color: white;
+            display: inline-block;
+            text-align: center;
+            font-size: 30px;
+            overflow: hidden;
+        }
+
+        img {
+            max-height: 100%;
+            max-width: 100%;
+            width: auto;
+            height: auto;
+        }
+
+        #station, #occupancy, #weather {
+            border-bottom: 1px solid #D3D3D3;
+            margin: 20px 0px 20px 0px;
+        }
+
+        #occupancy, #weather, #chart {
+            text-align: center;
+        }
+
+        #weather {
+            font-size: 12px;
+        }
+
     </style>
     <title>Dublin Bikes</title>
 </head>
@@ -51,8 +103,6 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-3 p-0" id="sidebar">
-{#            <ul class="list-group-flush p-0 overflow-auto vh-100" id="list">#}
-{#            </ul>#}
         </div>
         <div class="col-9" id="map"></div>
     </div>
@@ -62,18 +112,108 @@
 
     function clickHandler(id) {  // handler for click on markers or list items
         console.log(id);
-        window.location.href = "http://127.0.0.1:5000/station/"+id;
-        showDetails(id);
+        $.when(
+            $.ajax('/api/stations/' + id),
+            $.ajax('/api/weather/' + id)
+        ).then((station, weather) => showDetails(station[0].data, weather[0]));
     }
 
     function backHandler() {  // back from station details to list when clicked
         $.getJSON('/api/stations/', data => showList(data));
     }
 
-    function showDetails(data) {
+    function showDetails(station, weathers) {
+        function renderWeathers(weathers) {
+            function renderWeather(weather) {
+                const content = `
+            <div class="col">
+                <div class="row">
+                    <div class="col" >${weather.datetime}</div>
+                </div>
+                <div class="row">
+                    <img src="https://www.weatherbit.io/static/img/icons/${weather.icon}.png">
+                </div>
+                <div class="row">
+                    <div class="col" >${weather.temperature}°</div>
+                </div>
+            </div>
+            `;
+                return content;
+            }
 
+            function formatAMPM(date) {
+                var hours = date.getHours();
+                var ampm = hours >= 12 ? 'PM' : 'AM';
+                hours = hours % 12;
+                hours = hours ? hours : 12; // the hour '0' should be '12'
+                return hours + ampm;
+            }
+
+            let weathersContent = '';
+
+            weathers.current.datetime = "Now";
+            weathersContent += renderWeather(weathers.current);
+
+            var forecast = weathers.forecast;
+            for (let i = 0; i < forecast.length && i <= 3; i++) {
+                var date = new Date(forecast[i].datetime);
+                forecast[i].datetime = formatAMPM(date);
+                weathersContent += renderWeather(forecast[i]);
+            }
+            return weathersContent;
+        }
+
+        let content = `
+        <div class="row" id="icon">
+                <div class="col">
+                <button onclick="backHandler()" type="button">Dublin_Bike</button>
+                </div>
+            </div>
+            <div class="row" id="station">
+                <div class="col" >
+                    <p id="station_info">${station.site_names}<br>${station.status}<br>${station.address}</p>
+                </div>
+            </div>
+            <div class="row" id="occupancy">
+                <div class="col" >
+                    <div class="row">
+                        <div class="col" >
+                            <b>Bike Available</b>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                           <div class="row">
+                               <div class="col"> Now</div>
+                            </div>
+                            <div class="row" style="padding: 0% 20% 20% 20%;">
+                               <div class="col" id="now_available_bike">
+                                 ${station.available_bike + "/" + station.bike_stand}
+                               </div>
+                            </div>
+                        </div>
+                        <div class="col-6" >
+                           <div class="row">
+                               <div class="col" >Next Hour</div>
+                            </div>
+                            <div class="row" style="padding: 0% 20% 20% 20%;">
+                               <div class="col" id="next_hour_available_bike">
+                                 ${station.available_bike + "/" + station.bike_stand}
+                               </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="weather" >
+              ${renderWeathers(weathers)}
+            </div>
+            <div class="row" id="chart">
+            </div>
+        `;
+        $('#sidebar').html(content);
     }
-  
+
     function showList(data) {
         function renderListItem(station) {
             let availability;
