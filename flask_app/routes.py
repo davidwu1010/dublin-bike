@@ -14,9 +14,6 @@ db = SQLAlchemy(app)
 def index():
     return render_template('index.html')
 
-@app.route('/station/<int:station_id>')
-def station(station_id):
-    return render_template('station.html', station_id=station_id)
 
 @app.route('/api/weather/<int:station_id>')
 def get_weather(station_id):
@@ -34,25 +31,6 @@ def get_weather(station_id):
     data = {'current': current_weather.serialize,
             'forecast': [forecast.serialize for forecast in forecasts]}
     return jsonify(data)
-
-@app.route('/api/forecasts/<int:station_id>')
-def get_forecasts(station_id):
-    forecasts = db.session.query(Forecast) \
-        .filter(Forecast.stationNum == station_id) \
-        .order_by(Forecast.timestamp.asc()).all()
-    return jsonify({
-        'data': [forecast.serialize for forecast in forecasts]
-    })
-
-
-@app.route('/api/current-weather/<int:station_id>')
-def get_current_weather(station_id):
-    current_weather = db.session.query(CurrentWeather) \
-        .filter(CurrentWeather.stationNum == station_id) \
-        .order_by(CurrentWeather.datetime.desc()).first()
-    return jsonify({
-        'data': current_weather.serialize
-    })
 
 
 @app.route('/api/stations/')

@@ -29,8 +29,8 @@
         /* Always set the map height explicitly to define the size of the div
          * element that contains the map. */
         #map {
-            min-height: 100vh;
-            overflow-x: hidden;
+            max-height: 100vh;
+            overflow-y: hidden;
         }
 
         /* Optional: Makes the sample page fill the window. */
@@ -102,11 +102,11 @@
 <!--The div element for the map -->
 <div class="container-fluid">
     <div class="row">
-        <div class="col-3 p-0" id="sidebar">
-        </div>
+        <div class="col-3 p-0 vh-100" id="sidebar"></div>
         <div class="col-9" id="map"></div>
     </div>
 </div>
+</body>
 <script>
     'use strict';
 
