@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+            integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+            crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+            crossorigin="anonymous">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.bundle.min.js"
+            integrity="sha256-TQq84xX6vkwR0Qs1qH5ADkP+MvH0W+9E7TdHJsoIQiM="
+            crossorigin="anonymous">
+    </script>
+    <style>
+        /* Optional: Makes the sample page fill the window. */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        b {
+            font-size: 20px;
+        }
+
+        button {
+            width: 100%;
+            height: 60px;
+            border: none;
+            color: white;
+            background-color: #33AAC0;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 30px;
+        }
+
+        img {
+            overflow: hidden;
+<!--            border: 0.5px solid #D3D3D3;-->
+        }
+
+        #now_available_bike, #next_hour_available_bike {
+            border-radius: 50%;
+            width: 100px;
+            height: 100px;
+            line-height: 100px;
+            position: relative;
+            background-color: #33AAC0;
+            color: white;
+            display: inline-block;
+            text-align: center;
+            font-size: 30px;
+            overflow: hidden;
+        }
+
+        img {
+            max-height: 100%;
+            max-width: 100%;
+            width: auto;
+            height: auto;
+        }
+
+        #map {
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #sidebar {
+            z-index: 9999;
+            margin: 0;
+            padding: 0;
+        }
+
+        #station, #occupacity, #weather {
+            border-bottom: 1px solid #D3D3D3;
+            margin: 20px 0px 20px 0px;
+        }
+
+        #occupacity, #weather, #chart {
+            text-align: center;
+        }
+
+        #weather {
+            font-size: 12px;
+        }
+
+    </style>
+    <title>Dublin Bikes</title>
+</head>
+<body class="overflow-hidden">
+<!--The div element for the map -->
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-3 p-0" id="sidebar">
+            <div class="row" id="icon">
+                <div class="col">
+                <button onclick="location.href='http://127.0.0.1:5000/'" type="button">Dublin_Bike</button>
+                </div>
+            </div>
+            <div class="row" id="station">
+                <div class="col" >
+                    <p id="station_info"></p>
+                </div>
+            </div>
+            <div class="row" id="occupacity">
+                <div class="col" >
+                    <div class="row">
+                        <div class="col" >
+                            <b>Bike Available</b>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                           <div class="row">
+                               <div class="col"> Now</div>
+                            </div>
+                            <div class="row" style="padding: 0% 20% 20% 20%;">
+                               <div class="col" id="now_available_bike">
+                               </div>
+                            </div>
+                        </div>
+                        <div class="col-6" >
+                           <div class="row">
+                               <div class="col" >Next Hour</div>
+                            </div>
+                            <div class="row" style="padding: 0% 20% 20% 20%;">
+                               <div class="col" id="next_hour_available_bike">
+                               </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="weather" >
+            </div>
+            <div class="row" id="chart">
+            </div>
+        </div>
+        <div class="col-9" id="map"></div>
+<!--        <div class="col-9" style="background-color: coral;"></div>-->
+    </div>
+</div>
+<script>
+    stationId = {{station_id}};
+    getStationInfo(stationId);
+
+    function getStationInfo(id) {
+
+        $.getJSON('http://127.0.0.1:5000/api/stations/' + id, data => {
+            station = data.data;
+            console.log(station);
+            if (station.status == 'OPEN'){
+                showStationInfo(station);
+                getWeather(stationId);
+            }
+        });
+    }
+
+    function showStationInfo(station) {
+        $("#station_info").append(station.site_names+"<br>"+station.status+"<br>"+station.address);
+        $("#next_hour_available_bike").append(station.available_bike + "/" + station.bike_stand);
+        $("#now_available_bike").append(station.available_bike + "/" + station.bike_stand);
+    }
+
+    function getWeather(id) {
+        $.getJSON('http://127.0.0.1:5000/api/weather/' + id, data => {
+            showWeather(data);
+        });
+    }
+
+    function showWeather(weathers) {
+        function renderWeather(weather) {
+            const content = `
+            <div class="col">
+                <div class="row">
+                    <div class="col" >${weather.datetime}</div>
+                </div>
+                <div class="row">
+                    <img src="https://www.weatherbit.io/static/img/icons/${weather.icon}.png">
+                </div>
+                <div class="row">
+                    <div class="col" >${weather.temperature}°</div>
+                </div>
+            </div>
+            `;
+            return content;
+        }
+        let weathersContent = '';
+
+        weathers.current.datetime = "Now";
+        weathersContent += renderWeather(weathers.current);
+
+        var forecast = weathers.forecast;
+        for (i = 0; i < forecast.length && i<= 3; i++) {
+            var date = new Date(forecast[i].datetime);
+            forecast[i].datetime = formatAMPM(date);
+            weathersContent += renderWeather(forecast[i]);
+        }
+        $("#weather").append(weathersContent);
+    }
+
+    function formatAMPM(date) {
+        var hours = date.getHours();
+        var ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        return hours + ampm;
+    }
+
+    var initMap = () => {
+        this.map = new google.maps.Map(
+            document.getElementById('map'), {
+                zoom: 15,
+                center: {lat: 53.342964, lng: -6.286889}  // dublin center
+            });
+
+        this.circles = new Map();  // HashMap not Google Map
+        $.getJSON('http://127.0.0.1:5000/api/stations/', data => {
+            for (const station of data.data) {
+                const color = station.available_bike / station.bike_stand < 0.7
+                    ? 'green' : 'red';
+                const circle = new google.maps.Circle({
+                    strokeColor: 'white',
+                    strokeOpacity: 0.4,
+                    fillColor: color,
+                    fillOpacity: 0.6,
+                    map: this.map,
+                    center: {
+                        lat: station.latitude,
+                        lng: station.longitude
+                    },
+                    radius: station.bike_stand * 2
+                });
+                circles.set(station.number, circle);
+            }
+
+            for (const pair of circles) {
+                let [id, circle] = pair;
+                circle.addListener('click', () => clickHandler(id));
+            }
+        });
+    };
+
+    function clickHandler(id) {  // handler for click on markers or list items
+        window.location.href = "http://127.0.0.1:5000/station/"+id;
+    }
+
+
+</script>
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAFP5d_7EMWgLSyTTuCvpYcUU--AQ239So&callback=initMap">
+</script>
+</body>
+</html>
