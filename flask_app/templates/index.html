@@ -65,8 +65,13 @@
     function clickHandler(id) {  // handler for click on markers or list items
         console.log(id);
         window.location.href = "http://127.0.0.1:5000/station/"+id;
+        showDetails(id);
     }
 
+    function showDetails(id) {
+
+    }
+  
     function showList(data) {
         function renderListItem(station) {
             let availability;
