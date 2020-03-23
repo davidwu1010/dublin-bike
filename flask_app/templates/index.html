@@ -51,8 +51,8 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-3 p-0" id="sidebar">
-            <ul class="list-group-flush p-0 overflow-auto vh-100" id="list">
-            </ul>
+{#            <ul class="list-group-flush p-0 overflow-auto vh-100" id="list">#}
+{#            </ul>#}
         </div>
         <div class="col-9" id="map"></div>
     </div>
@@ -60,15 +60,17 @@
 <script>
     'use strict';
 
-    var sideBarStatus = 'list';  // status can be list or details
-
     function clickHandler(id) {  // handler for click on markers or list items
         console.log(id);
         window.location.href = "http://127.0.0.1:5000/station/"+id;
         showDetails(id);
     }
 
-    function showDetails(id) {
+    function backHandler() {  // back from station details to list when clicked
+        $.getJSON('/api/stations/', data => showList(data));
+    }
+
+    function showDetails(data) {
 
     }
   
@@ -95,16 +97,18 @@
             return content;
         }
 
-
-        sideBarStatus = 'list';
         let listItems = '';
         for (const station of data.data) {
             listItems += renderListItem(station);
         }
 
-        const list = $('#list');
-        list.html(listItems);
-        const items = list.children();
+        document.getElementById('sidebar').innerHTML = `
+        <ul class="list-group-flush p-0 overflow-auto vh-100" id="list">
+            ${listItems}
+        </ul>
+        `;
+
+        const items = $('#list').children();
         for (const li of items) {
             const id = parseInt(li.id.split('-')[1]);
             li.addEventListener('click', () => clickHandler(id));
@@ -119,7 +123,7 @@
             });
 
         this.circles = new Map();  // HashMap not Google Map
-        $.getJSON('api/stations/', data => {
+        $.getJSON('/api/stations/', data => {
             for (const station of data.data) {
                 const color = station.available_bike / station.bike_stand < 0.7
                     ? 'green' : 'red';
