@@ -159,13 +159,6 @@
     stationId = {{station_id}};
     getStationInfo(stationId);
 
-    function clearContext(){
-        $("#station_info").html("");
-        $("#now_available_bike").html("");
-        $("#next_hour_available_bike").html("");
-        $("#weather").html("");
-    }
-
     function getStationInfo(id) {
 
         $.getJSON('http://127.0.0.1:5000/api/stations/' + id, data => {
@@ -229,7 +222,6 @@
         return hours + ampm;
     }
 
-
     var initMap = () => {
         this.map = new google.maps.Map(
             document.getElementById('map'), {
@@ -266,7 +258,6 @@
 
     function clickHandler(id) {  // handler for click on markers or list items
         window.location.href = "http://127.0.0.1:5000/station/"+id;
-<!--        initUI();-->
     }
 
 
