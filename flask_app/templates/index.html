@@ -26,7 +26,7 @@
             crossorigin="anonymous">
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js">
-    </script>>
+    </script>
 
     <style>
         /* Always set the map height explicitly to define the size of the div
@@ -98,15 +98,28 @@
             font-size: 12px;
         }
 
+        .zone {
+            width: auto;
+        }
+
+        .row, .row > div {
+            margin: 0;
+            padding: 0;
+        }
+
+        #station_info {
+            padding-left: 10px;
+        }
     </style>
     <title>Dublin Bikes</title>
 </head>
+
 <body class="overflow-hidden">
 <!--The div element for the map -->
-<div class="container-fluid">
+<div class="container-fluid p-0">
 
     <div class="row">
-        <div class="col-3 p-0 vh-100" id="sidebar"></div>
+        <div class="col-3 p-0 vh-100 overflow-auto" id="sidebar"></div>
         <div class="col-9" id="map"></div>
     </div>
 
@@ -117,13 +130,13 @@
 
     function showHourly(id) {
 
-        $.getJSON('api/hourly/'+ id, hourly_data => {
+        $.getJSON('/api/hourly/' + id, hourly_data => {
 
-            var labels = hourly_data.map(function(item) {
+            var labels = hourly_data.map(function (item) {
                 return item.hour;
             });
 
-            var data = hourly_data.map(function(item) {
+            var data = hourly_data.map(function (item) {
                 return item.available_bike;
             });
 
@@ -133,13 +146,13 @@
 
     function showDaily(id) {
 
-        $.getJSON('api/daily/'+ id, daily_data => {
+        $.getJSON('/api/daily/' + id, daily_data => {
 
-            var labels = daily_data.map(function(item) {
+            var labels = daily_data.map(function (item) {
                 return item.day_of_week;
             });
 
-            var data = daily_data.map(function(item) {
+            var data = daily_data.map(function (item) {
                 return item.available_bike;
             });
 
@@ -158,13 +171,13 @@
                     backgroundColor: 'rgba(54, 162, 235, 0.2)',
                     borderColor: 'rgba(54, 162, 235, 1)',
                     borderWidth: 1
-                    }]
+                }]
             },
             options: {
                 legend: {
                     display: false
                 },
-                title:{
+                title: {
                     position: 'top',
                     display: true,
                     text: 'Hourly Average Bike Available'
@@ -197,13 +210,13 @@
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     borderColor: 'rgba(75, 192, 192, 1)',
                     borderWidth: 1
-                    }]
+                }]
             },
             options: {
                 legend: {
                     display: false
                 },
-                title:{
+                title: {
                     position: 'top',
                     display: true,
                     text: 'Daily Average Bike Available'
@@ -228,7 +241,11 @@
         $.when(
             $.ajax('/api/stations/' + id),
             $.ajax('/api/weather/' + id)
-        ).then((station, weather) => showDetails(station[0].data, weather[0]));
+        ).then((station, weather) => showDetails(station[0].data, weather[0])
+        ).then(() => {
+            showHourly(id);
+            showDaily(id);
+        });
     }
 
     function backHandler() {  // back from station details to list when clicked
@@ -321,8 +338,8 @@
             <div class="row" id="weather" >
               ${renderWeathers(weathers)}
             </div>
-            <div class="row" id="chart">
-            </div>
+            <canvas id="hourly-chart" class="zone"></canvas>
+            <canvas id="daily-chart" class="zone"></canvas>
         `;
         $('#sidebar').html(content);
     }
@@ -356,7 +373,7 @@
         }
 
         document.getElementById('sidebar').innerHTML = `
-        <ul class="list-group-flush p-0 overflow-auto vh-100" id="list">
+        <ul class="list-group-flush p-0 vh-100" id="list">
             ${listItems}
         </ul>
         `;
@@ -405,9 +422,7 @@
     };
 
 </script>
-
 <script async defer
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAFP5d_7EMWgLSyTTuCvpYcUU--AQ239So&callback=initMap">
 </script>
-</body>
 </html>
