@@ -8,8 +8,6 @@ from config import MySQL, APIKeys
 
 def scrape(dt):
 
-    print("craperDatetime", dt)
-
     engine = create_engine(f'mysql+pymysql://{MySQL.username}:{MySQL.password}@{MySQL.host}/{MySQL.database}')
     Base.metadata.create_all(engine)  # Create table
     Session = sessionmaker(bind=engine)
