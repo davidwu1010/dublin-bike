@@ -6,9 +6,9 @@ from models.schemas import Base, CurrentWeather, StaticBike
 from config import MySQL, APIKeys
 
 
-def scrape(craperDatetime):
+def scrape(dt):
 
-    print("craperDatetime", craperDatetime)
+    print("craperDatetime", dt)
 
     engine = create_engine(f'mysql+pymysql://{MySQL.username}:{MySQL.password}@{MySQL.host}/{MySQL.database}')
     Base.metadata.create_all(engine)  # Create table
@@ -28,7 +28,6 @@ def scrape(craperDatetime):
             if response:
 
                 data = response.json()
-
                 temp = data["main"]["temp"]
                 lon = data["coord"]["lon"]
                 lat = data["coord"]["lat"]
@@ -40,7 +39,7 @@ def scrape(craperDatetime):
                 code = weather["id"]
                 description = weather["description"]
 
-                datetimeObj = datetime.datetime.strptime(craperDatetime, '%Y-%m-%d %H:%M:%S')
+                datetimeObj = datetime.datetime.strptime(dt, '%Y-%m-%d %H:%M:%S')
                 weekday = datetimeObj.isoweekday()
 
                 # Only add new row to table of DB if the datetime(key) is not exist

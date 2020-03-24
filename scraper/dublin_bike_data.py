@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models.schemas import Base, DublinBike
 from config import MySQL, APIKeys
-
+import current_weather_scraper
 
 def scrape():
     host = MySQL.host
@@ -28,6 +28,8 @@ def scrape():
     if response:
         response = response.json()
         dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        current_weather_scraper.scrape(dt)
+
         for row in response:
             scraping_time = dt
             number = row["number"]
