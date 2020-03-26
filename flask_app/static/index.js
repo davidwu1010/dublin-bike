@@ -254,6 +254,14 @@ function showList(data) {
     for (const li of items) {
         const id = parseInt(li.id.split('-')[1]);
         li.addEventListener('click', () => clickHandler(id));
+        li.addEventListener('mouseenter', () => {
+            li.classList.add('active');
+            document.body.style.cursor = 'pointer';
+        });
+        li.addEventListener('mouseleave', () => {
+            li.classList.remove('active');
+            document.body.style.cursor = 'default';
+        });
     }
 }
 
