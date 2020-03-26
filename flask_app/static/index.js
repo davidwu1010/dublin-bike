@@ -256,6 +256,9 @@ function showList(data) {
     }
 
     document.getElementById('sidebar').innerHTML = `
+        <div class="col">
+                <button onclick="backHandler()" type="button">Dublin_Bike</button>
+        </div>
         <ul class="list-group-flush p-0 vh-100" id="list">
             ${listItems}
         </ul>
