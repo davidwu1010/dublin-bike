@@ -132,6 +132,7 @@ function clickHandler(id) {  // handler for click on markers or list items
 }
 
 function backHandler() {  // back from station details to list when clicked
+    infowindow.close();
     $.getJSON('/api/stations/', data => showList(data));
 }
 
