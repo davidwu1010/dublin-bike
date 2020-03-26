@@ -117,7 +117,14 @@ function clickHandler(id) {  // handler for click on markers or list items
         showDetails(station[0].data, weather[0]);
         map.setCenter({lat: station[0].data.latitude,  // set map center to the clicked station
                        lng: station[0].data.longitude});
-
+        const content = `
+        <div>
+            ${station[0].data.address}
+        </div>
+        `;
+        infowindow.setPosition(circles.get(id).getCenter());
+        infowindow.setContent(content);
+        infowindow.open(map);
     }).then(() => {
         showHourly(id);
         showDaily(id);
@@ -276,6 +283,7 @@ var initMap = () => {
             center: {lat: 53.342964, lng: -6.286889}  // dublin center
         });
 
+    this.infowindow = new google.maps.InfoWindow();
     this.circles = new Map();  // HashMap not Google Map
     $.getJSON('/api/stations/', data => {
         for (const station of data.data) {
