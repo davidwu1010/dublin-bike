@@ -113,8 +113,12 @@ function clickHandler(id) {  // handler for click on markers or list items
     $.when(
         $.ajax('/api/stations/' + id),
         $.ajax('/api/weather/' + id)
-    ).then((station, weather) => showDetails(station[0].data, weather[0])
-    ).then(() => {
+    ).then((station, weather) => {
+        showDetails(station[0].data, weather[0]);
+        map.setCenter({lat: station[0].data.latitude,  // set map center to the clicked station
+                       lng: station[0].data.longitude});
+
+    }).then(() => {
         showHourly(id);
         showDaily(id);
     });
