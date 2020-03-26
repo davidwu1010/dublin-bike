@@ -1,12 +1,13 @@
 import json
 
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from models.schemas import Forecast, CurrentWeather, DublinBike
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 import config
 from hourly_average import get_hourly_mean_json
 from daily_average import get_daily_mean_json
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = config.MySQL.URI
@@ -64,10 +65,18 @@ def hourly_chart(station_id):
     data = get_hourly_mean_json(station_id)
     return data
 
+
 @app.route("/api/daily/<int:station_id>")
 def daily_chart(station_id):
     data = get_daily_mean_json(station_id)
     return data
+
+
+@app.route('/api/prediction/<int:station_id>')
+def get_prediction(station_id):
+    day = request.args.get('day')
+    time = request.args.get('time')
+    return str(day) + str(time)
 
 
 if __name__ == '__main__':
