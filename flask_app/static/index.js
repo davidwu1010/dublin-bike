@@ -113,14 +113,26 @@ function clickHandler(id) {  // handler for click on markers or list items
     $.when(
         $.ajax('/api/stations/' + id),
         $.ajax('/api/weather/' + id)
-    ).then((station, weather) => showDetails(station[0].data, weather[0])
-    ).then(() => {
+    ).then((station, weather) => {
+        showDetails(station[0].data, weather[0]);
+        map.setCenter({lat: station[0].data.latitude,  // set map center to the clicked station
+                       lng: station[0].data.longitude});
+        const content = `
+        <div>
+            ${station[0].data.address}
+        </div>
+        `;
+        infowindow.setPosition(circles.get(id).getCenter());
+        infowindow.setContent(content);
+        infowindow.open(map);
+    }).then(() => {
         showHourly(id);
         showDaily(id);
     });
 }
 
 function backHandler() {  // back from station details to list when clicked
+    infowindow.close();
     $.getJSON('/api/stations/', data => showList(data));
 }
 
@@ -245,6 +257,9 @@ function showList(data) {
     }
 
     document.getElementById('sidebar').innerHTML = `
+        <div class="col">
+                <button onclick="backHandler()" type="button">Dublin_Bike</button>
+        </div>
         <ul class="list-group-flush p-0 vh-100" id="list">
             ${listItems}
         </ul>
@@ -254,6 +269,14 @@ function showList(data) {
     for (const li of items) {
         const id = parseInt(li.id.split('-')[1]);
         li.addEventListener('click', () => clickHandler(id));
+        li.addEventListener('mouseenter', () => {
+            li.classList.add('active');
+            document.body.style.cursor = 'pointer';
+        });
+        li.addEventListener('mouseleave', () => {
+            li.classList.remove('active');
+            document.body.style.cursor = 'default';
+        });
     }
 }
 
@@ -264,6 +287,7 @@ var initMap = () => {
             center: {lat: 53.342964, lng: -6.286889}  // dublin center
         });
 
+    this.infowindow = new google.maps.InfoWindow();
     this.circles = new Map();  // HashMap not Google Map
     $.getJSON('/api/stations/', data => {
         for (const station of data.data) {

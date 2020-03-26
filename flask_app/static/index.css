@@ -83,3 +83,9 @@ img {
 #sidebar {
     overflow-y: scroll;
 }
+
+#sidebar > * {
+    padding: 0;
+    margin: 0;
+}
+
