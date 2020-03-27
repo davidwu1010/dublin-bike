@@ -31,8 +31,6 @@ class Forecast(Base):
         }
 
 
-
-
 class CurrentWeather(Base):
     __tablename__ = 'current_weather'
     stationNum = Column(Integer, primary_key=True)
@@ -113,6 +111,7 @@ class DublinBike(Base):
             'bonus': self.bonus
         }
 
+
 class StaticBike(Base):
     __tablename__ = 'static_bike'
     __table_args__ = {'sqlite_autoincrement': True}
@@ -131,5 +130,3 @@ class StaticBike(Base):
             'latitude': self.latitude,
             'longitude': self.longitude
         }
-
-
