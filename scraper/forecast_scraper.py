@@ -3,15 +3,24 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from models.schemas import Base, Forecast, StaticBike
 from config import MySQL, APIKeys
+from datetime import datetime
+
+
+def to_icon_code(description, is_night):
+    icons = {'clear-day': 'c01', 'clear-night': 'c01', 'rain': 'r01',
+             'snow': 's01', 'sleet': 's04', 'wind': 's05', 'fog': 'a05',
+             'cloudy': 'c04', 'partly-cloudy-day': 'c02',
+             'partly-cloudy-night': 'c02'}
+    code = icons[description]
+    if is_night:
+        code += 'n'
+    else:
+        code += 'd'
+    return code
 
 
 def scrape():
-    host = MySQL.host
-    user = MySQL.username
-    password = MySQL.password
-    database = MySQL.database
-
-    engine = create_engine(f'mysql+pymysql://{user}:{password}@{host}/{database}')
+    engine = create_engine(MySQL.URI)
     Base.metadata.create_all(engine)  # Create table
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -24,28 +33,33 @@ def scrape():
 
         for station in stations:
 
-            parameters = {'lat': station.latitude, 'lon': station.longitude, 'hours': '6',
-                          'key': APIKeys.forecast_key}
-            api = 'https://api.weatherbit.io/v2.0/forecast/hourly'
+            parameters = {'exclude': 'minutely,flags', 'units': 'si'}
+            lat = station.latitude
+            lon = station.longitude
+            api = f'https://api.darksky.net/forecast/{APIKeys.darksky_key}/{lat},{lon}'
 
             response = requests.get(api, params=parameters)
             response.raise_for_status()  # throw an error if made a bad request
             if response:
 
                 response = response.json()
-                for forecast in response['data']:
-                    timestamp = forecast['timestamp_local']
-                    temperature = forecast['temp']
-                    description = forecast['weather']['description']
-                    icon = forecast['weather']['icon']
+                sunrise_time = response['daily']['data'][0]['sunriseTime']
+                sunset_time = response['daily']['data'][0]['sunsetTime']
+                for forecast in response['hourly']['data']:
+                    is_night = forecast['time'] < sunrise_time \
+                               or forecast['time'] > sunset_time
+                    timestamp = datetime.fromtimestamp(forecast['time'])
+                    temperature = forecast['temperature']
+                    description = forecast['summary']
+                    icon = to_icon_code(forecast['icon'], is_night)
                     session.add(Forecast(timestamp=timestamp, temperature=temperature,
                                          description=description, icon=icon,
                                          lat=station.latitude, lon=station.longitude,
                                          stationNum=station.number))
             session.commit()
-
     else:
         print('Can not find stations')
+
 
 if __name__ == '__main__':
     scrape()

@@ -1,5 +1,3 @@
-import json
-
 from flask import Flask, render_template, jsonify, request
 from models.schemas import Forecast, CurrentWeather, DublinBike
 from flask_sqlalchemy import SQLAlchemy
@@ -7,6 +5,7 @@ from sqlalchemy import func
 import config
 from hourly_average import get_hourly_mean_json
 from daily_average import get_daily_mean_json
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -25,7 +24,8 @@ def get_weather(station_id):
 
     # get forcast weather data from db
     forecasts = db.session.query(Forecast) \
-        .filter(Forecast.stationNum == station_id) \
+        .filter(Forecast.stationNum == station_id,
+                Forecast.timestamp > datetime.now()) \
         .order_by(Forecast.timestamp.asc()).all()
 
     # get current weather data from db
