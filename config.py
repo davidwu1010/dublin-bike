@@ -11,3 +11,4 @@ class APIKeys:
     weather_key = 'e1e57d828ca04314a28b8bb9e9ad0a90'
     openweather_key = '66043352f756672c33e75e84356d00bb'
     bike_API = '7ae2177f685f108ca05b6adce96561f8cf959aa5'
+    darksky_key = '2904cab84ffe704ac26974de05ee3577'

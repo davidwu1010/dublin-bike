@@ -3,7 +3,7 @@ import signal
 import sys
 import os
 from apscheduler.schedulers.blocking import BlockingScheduler
-from scraper import forecast_scraper, dublin_bike_data, current_weather_scraper
+from scraper import forecast_scraper, dublin_bike_data
 
 
 def signal_handler(sig, frame):
@@ -18,16 +18,11 @@ sys.tracebacklimit = 0
 signal.signal(signal.SIGINT, signal_handler)  # trap SIGINT (CTRL+C)
 signal.signal(signal.SIGTERM, signal_handler)  # trap SIGTERM (kill)
 
-logging.basicConfig(filename='scraper.log', filemode='a')
-logging.getLogger("apscheduler").setLevel(logging.DEBUG)
-
-
-def bike_weather_scraper():
-    scraping_time = dublin_bike_data.scrape()
-    current_weather_scraper.scrape(scraping_time)
+# logging.basicConfig(filename='scraper.log', filemode='a')
+# logging.getLogger("apscheduler").setLevel(logging.DEBUG)
 
 
 scheduler = BlockingScheduler()
-scheduler.add_job(forecast_scraper.scrape, 'interval', hours=1)
-scheduler.add_job(bike_weather_scraper, 'interval', minutes=5)
+scheduler.add_job(forecast_scraper.scrape, 'interval', hours=3)
+scheduler.add_job(dublin_bike_data.scrape, 'interval', minutes=5)
 scheduler.start()
