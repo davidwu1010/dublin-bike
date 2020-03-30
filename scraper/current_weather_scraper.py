@@ -5,6 +5,12 @@ from sqlalchemy.orm import sessionmaker
 from models.schemas import Base, CurrentWeather, StaticBike
 from config import MySQL, APIKeys
 
+def to_weatherbit_icon(openweatherIcon):
+    icons = {'11': 't04', '09': 'd01', '10': 'r01', '13': 'f01', '09': 'r04',
+             '13': 's02', '50': 'a02', '01': 'c01',  '02': 'c02', '03': 'c03',
+             '04': 'c04'}
+    return icons[openweatherIcon[:-1]]+openweatherIcon[-1]
+
 
 def scrape(dt):
 
@@ -33,7 +39,8 @@ def scrape(dt):
                 clouds = data["clouds"]["all"]
                 sunset = data["sys"]["sunset"]
                 weather = data["weather"][0]
-                icon = weather["icon"]
+                icon = to_weatherbit_icon(weather["icon"])
+                print("weather icon", weather["icon"], "icon", icon)
                 code = weather["id"]
                 description = weather["description"]
 
@@ -49,3 +56,4 @@ def scrape(dt):
 
     else:
         print('Can not find stations')
+
