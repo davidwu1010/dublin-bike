@@ -3,8 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from models.schemas import Base, DublinBike
 from config import MySQL
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
+
 
 host = MySQL.host
 user = MySQL.username
