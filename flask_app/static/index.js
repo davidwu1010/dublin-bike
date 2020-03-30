@@ -292,7 +292,7 @@ var initMap = () => {
     this.circles = new Map();  // HashMap not Google Map
     $.getJSON('/api/stations/', data => {
         for (const station of data.data) {
-            const color = station.available_bike / station.bike_stand < 0.7
+            const color = station.available_bike / station.bike_stand > 0.2
                 ? 'green' : 'red';
             const circle = new google.maps.Circle({
                 strokeColor: 'white',
