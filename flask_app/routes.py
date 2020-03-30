@@ -6,6 +6,8 @@ import config
 from hourly_average import get_hourly_mean_json
 from daily_average import get_daily_mean_json
 from datetime import datetime
+import pytz
+from pytz import timezone
 
 
 app = Flask(__name__)
@@ -25,7 +27,8 @@ def get_weather(station_id):
     # get forcast weather data from db
     forecasts = db.session.query(Forecast) \
         .filter(Forecast.stationNum == station_id,
-                Forecast.timestamp > datetime.now()) \
+                Forecast.timestamp >
+                datetime.now(timezone('Europe/Dublin')).astimezone(pytz.utc)) \
         .order_by(Forecast.timestamp.asc()).all()
 
     # get current weather data from db
