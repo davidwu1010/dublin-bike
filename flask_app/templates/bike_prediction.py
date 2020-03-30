@@ -79,11 +79,17 @@ def bike_predict(number_input):
     combined_df = data_cleaning(combined_df)
     combined_df = time_transform(combined_df, 'weekday', 7)
     combined_df = time_transform(combined_df, 'hour', 23)
+    total_bike_stand = combined_df['bike_stand']
 
-    model_name = 'rf_model.pkl'
+    model_name = 'lgbm_model.pkl'
     model = joblib.load(model_name)
     y_prediction = model.predict(combined_df)[0]
-    return y_prediction
+
+    # print(y_prediction)
+    # print(total_bike_stand)
+    # print(y_prediction * total_bike_stand)
+
+    return int(round(y_prediction * total_bike_stand))
 
 
 
