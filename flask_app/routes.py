@@ -27,8 +27,7 @@ def get_weather(station_id):
     # get forcast weather data from db
     forecasts = db.session.query(Forecast) \
         .filter(Forecast.stationNum == station_id,
-                Forecast.timestamp >
-                datetime.now(timezone('Europe/Dublin')).astimezone(pytz.utc)) \
+                Forecast.timestamp > datetime.utcnow()) \
         .order_by(Forecast.timestamp.asc()).all()
 
     # get current weather data from db
