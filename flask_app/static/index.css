@@ -89,3 +89,23 @@ img {
     margin: 0;
 }
 
+#weather-widget {
+    width: 200px;
+    height: 270px;
+    top: 10px;
+    right: 10px;
+    position: absolute;
+    background-color: white;
+    border-radius: 20px;
+    z-index: 9999;
+    display: none;
+}
+
+#weather-widget-icon {
+    width: 120px;
+    height: 120px;
+}
+
+#weather-widget-description {
+    text-transform: capitalize;
+}
