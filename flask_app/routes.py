@@ -6,8 +6,6 @@ import config
 from hourly_average import get_hourly_mean_json
 from daily_average import get_daily_mean_json
 from datetime import datetime
-import pytz
-from pytz import timezone
 
 
 app = Flask(__name__)
