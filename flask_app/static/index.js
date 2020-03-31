@@ -285,7 +285,8 @@ var initMap = () => {
     this.map = new google.maps.Map(
         document.getElementById('map'), {
             zoom: 15,
-            center: {lat: 53.342964, lng: -6.286889}  // dublin center
+            center: {lat: 53.342964, lng: -6.286889},  // dublin center
+            fullscreenControl: false
         });
 
     this.infowindow = new google.maps.InfoWindow();
