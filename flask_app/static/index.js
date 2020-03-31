@@ -316,4 +316,12 @@ var initMap = () => {
 
         showList(data);
     });
+    $.getJSON('/api/weather/29', ( {current} ) => {
+        const { description, icon, temperature } = current;
+        $('#weather-widget-description').text(description);
+        $('#weather-widget-icon').attr('src',
+            `https://www.weatherbit.io/static/img/icons/${icon}.png`);
+        $('#weather-widget-temperature').text(temperature + '°');
+        $('#weather-widget').css('display', 'block');
+    });
 };
