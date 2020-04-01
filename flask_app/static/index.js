@@ -34,7 +34,7 @@ function showDaily(id) {
 
 function createHourlyChart(labels, data) {
     var chartConfig = {
-        type: 'bar',
+        type: 'line',
         data: {
             labels: labels,
             datasets: [{
@@ -73,7 +73,7 @@ function createDailyChart(labels, data) {
     console.log(data);
     console.log(labels);
     var chartConfig = {
-        type: 'bar',
+        type: 'line',
         data: {
             labels: labels,
             datasets: [{

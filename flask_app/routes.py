@@ -1,10 +1,14 @@
 from flask import Flask, render_template, jsonify, request
+
+from flask_app.templates.daily_prediction import bike_predict_daily
+from flask_app.templates.hourly_prediction import bike_predict_hourly
 from models.schemas import Forecast, CurrentWeather, DublinBike
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 import config
 from hourly_average import get_hourly_mean_json
 from daily_average import get_daily_mean_json
+from bike_prediction import bike_predict
 from datetime import datetime
 
 
@@ -78,6 +82,20 @@ def get_prediction(station_id):
     time = request.args.get('time')
     return str(day) + str(time)
 
+@app.route('/api/get_prediction_next_hour/<int:station_id>')
+def get_prediction_hourly_chart(station_id):
+    data = bike_predict(station_id)
+    return data
+
+@app.route('/api/get_prediction_next_hour/<int:station_id>')
+def get_prediction_daily_chart(station_id):
+    data = bike_predict_daily(station_id)
+    return data
+
+@app.route('/api/get_prediction_next_hour/<int:station_id>')
+def get_prediction_next_hour(station_id):
+    data = bike_predict_hourly(station_id)
+    return data
 
 if __name__ == '__main__':
     app.run()

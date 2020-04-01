@@ -33,6 +33,8 @@ def get_hourly_mean_json(number_input):
 
     df["hour"] = df["scraping_time"].dt.hour
     hourly_mean = df.groupby("hour").mean().reset_index()
-
+    print(hourly_mean)
     return hourly_mean.to_json(orient='records')
+print(get_hourly_mean_json(10))
+
 

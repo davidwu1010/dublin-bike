@@ -4,6 +4,7 @@ from config import MySQL
 import pandas as pd
 import numpy as np
 import joblib
+import json
 
 
 def bike_predict(number_input):
@@ -88,8 +89,7 @@ def bike_predict(number_input):
     # print(y_prediction)
     # print(total_bike_stand)
     # print(y_prediction * total_bike_stand)
-
-    return int(round(y_prediction * total_bike_stand))
-
+    data = json.dumps({'predict_data': int(round(y_prediction * total_bike_stand))})
+    return data
 
 
