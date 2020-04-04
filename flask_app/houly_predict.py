@@ -90,7 +90,7 @@ def bike_predict_hourly(number_input):
     model = joblib.load(model_name)
     y_prediction = model.predict(hourly_df)
 
-    bike_hourly_predict = pd.DataFrame({'hour': hour, 'bike_hourly_predict':y_prediction * total_bike_stand })
+    bike_hourly_predict = pd.DataFrame({'hour': hour, 'bike_hourly_predict': y_prediction * total_bike_stand })
     bike_hourly_predict = bike_hourly_predict.to_json(orient='records')
 
     return bike_hourly_predict

@@ -34,7 +34,7 @@ function showDaily(id) {
 
 function createHourlyChart(labels, data) {
     var chartConfig = {
-        type: 'line',
+        type: 'bar',
         data: {
             labels: labels,
             datasets: [{
@@ -70,10 +70,8 @@ function createHourlyChart(labels, data) {
 }
 
 function createDailyChart(labels, data) {
-    console.log(data);
-    console.log(labels);
     var chartConfig = {
-        type: 'line',
+        type: 'bar',
         data: {
             labels: labels,
             datasets: [{
@@ -108,14 +106,21 @@ function createDailyChart(labels, data) {
 
 }
 
+function getNextHourBike(id) {
+    $.getJSON('/api/get_prediction_next_hour/' + id, data => {
+        var data_next_hour = data;
+    });
+}
+
 function clickHandler(id) {  // handler for click on markers or list items
     console.log(id);
     $.when(
         $.ajax('/api/stations/' + id),
-        $.ajax('/api/weather/' + id)
-    ).then((station, weather) => {
+        $.ajax('/api/weather/' + id),
+        $.getJSON('/api/get_prediction_next_hour/' + id)
+    ).then((station, weather, next_hour) => {
         document.body.style.cursor = 'default';
-        showDetails(station[0].data, weather[0]);
+        showDetails(station[0].data, weather[0], next_hour[0]);
         map.setCenter({lat: station[0].data.latitude,  // set map center to the clicked station
                        lng: station[0].data.longitude});
         const content = `
@@ -137,7 +142,8 @@ function backHandler() {  // back from station details to list when clicked
     $.getJSON('/api/stations/', data => showList(data));
 }
 
-function showDetails(station, weathers) {
+function showDetails(station, weathers, prediction) {
+    console.log(prediction[0].next_hour);
     function renderWeathers(weathers) {
         function renderWeather(weather) {
             const content = `
@@ -213,7 +219,7 @@ function showDetails(station, weathers) {
                             </div>
                             <div class="row" style="padding: 0% 20% 20% 20%;">
                                <div class="col" id="next_hour_available_bike">
-                                 ${station.available_bike + "/" + station.bike_stand}
+                                 ${prediction[0].next_hour + "/" + station.bike_stand}
                                </div>
                             </div>
                         </div>

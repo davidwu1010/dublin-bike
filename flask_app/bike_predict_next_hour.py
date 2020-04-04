@@ -6,7 +6,7 @@ import numpy as np
 import joblib
 
 
-def bike_predict_hourly(number_input):
+def bike_predict_next_hour(number_input):
     host = MySQL.host
     user = MySQL.username
     password = MySQL.password
@@ -19,13 +19,13 @@ def bike_predict_hourly(number_input):
                   FROM development.dublin_bike\
                   WHERE number = %(number)s\
                   ORDER BY scraping_time desc\
-                  LIMIT 276"
+                  LIMIT 1"
 
     query_weather = "SELECT * \
                     FROM development.current_weather\
                     WHERE stationNum =%(number)s \
                     ORDER BY datetime desc\
-                    LIMIT 276"
+                    LIMIT 1"
 
     bike_df = pd.read_sql_query(sql=query_bike, con=engine, params={'number': number_input},
                                 parse_dates=['scraping_time'])
@@ -60,38 +60,31 @@ def bike_predict_hourly(number_input):
         df = df.drop(col_to_drop, axis=1)
         df = df.drop_duplicates().reset_index()
         df = df.drop(['index'], axis=1)
-        df = df.drop(['available_bike'], axis=1)
+        df = df.drop(['scraping_time', 'available_bike'], axis=1)
 
         return df
 
     def data_type_conversion(df):
+        categorical_col = ['code']
+        df[categorical_col] = df[categorical_col].astype('category')
         df['banking'] = df['banking'].astype('int32')
         df['code'] = df['code'].astype('int32') // 100
         df['temperature'] = df['temperature'].astype('float64')
         return df
 
-
     bike_df = labeling_eval(bike_df)
     combined_df = merge_df(bike_df, weather_df)
-
+    combined_df = datetime_conversion(combined_df, "scraping_time")
     combined_df = data_type_conversion(combined_df)
     combined_df = data_cleaning(combined_df)
-    combined_df = datetime_conversion(combined_df, "scraping_time")
-    hourly_df = combined_df.resample('H', on='scraping_time').mean().reset_index()
-    hour = hourly_df['hour']
-    hourly_df = time_transform(hourly_df, 'weekday', 7)
-    hourly_df = time_transform(hourly_df, 'hour', 23)
-    hourly_df.drop('scraping_time', axis = 1, inplace =True)
+    combined_df = time_transform(combined_df, 'weekday', 7)
+    combined_df = time_transform(combined_df, 'hour', 23)
+    total_bike_stand = combined_df['bike_stand']
 
-    total_bike_stand = combined_df.loc[0,'bike_stand']
-
-    model_name = "lgbm_model_hourly.pkl"
+    model_name = 'lgbm_model.pkl'
     model = joblib.load(model_name)
-    y_prediction = model.predict(hourly_df)
-
-    bike_hourly_predict = pd.DataFrame({'hour': hour, 'bike_hourly_predict':y_prediction * total_bike_stand })
-    bike_hourly_predict = bike_hourly_predict.to_json(orient='records')
-
-    return bike_hourly_predict
-print(bike_predict_hourly(7))
-
+    y_prediction = model.predict(combined_df)[0]
+    y_prediction *= total_bike_stand
+    next_hour = pd.DataFrame({'number': [number_input], 'next_hour': [int(round(y_prediction))]})
+    next_hour = next_hour.to_json(orient='records')
+    return next_hour
