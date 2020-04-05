@@ -1,5 +1,8 @@
 'use strict';
 
+var stationId = 1;
+var weekdayIndex = 1;
+
 function showPrediction(id) {
 
     $.getJSON('/api/hourly/' + id, predict_data => {
@@ -87,7 +90,7 @@ function createChart(chartType, title, labels, data, elementId, backgroundColor=
 }
 
 function clickHandler(id) {  // handler for click on markers or list items
-    console.log(id);
+    stationId = id;
     $.when(
         $.ajax('/api/stations/' + id),
         $.ajax('/api/weather/' + id)
@@ -105,7 +108,9 @@ function clickHandler(id) {  // handler for click on markers or list items
         infowindow.setContent(content);
         infowindow.open(map);
     }).then(() => {
-        showPrediction(id)
+        weekdayIndex = new Date().getDay();
+        setWeekday();
+        showPrediction(id);
         showHourly(id);
         showDaily(id);
     });
@@ -177,15 +182,15 @@ function showDetails(station, weathers) {
                     <div class="row">
                         <b id="weekday">Monday</b>
                     <div>
-                    <div class="row">
-                        <div class="col-1" style="position: relative;">
-                            <button class="preNextBtn">&laquo;</button>
+                    <div class="row" style="position: relative;">
+                        <div class="col-1">
+                            <button class="preNextBtn" onclick="preBtnClick()">&laquo;</button>
                         </div>
                         <div class="col-10">
                             <canvas id="prediction-chart" class="zone"></canvas>
                         </div>
-                         <div class="col-1" style="position: relative;">
-                            <button class="preNextBtn">&raquo;</button>
+                         <div class="col-1">
+                            <button class="preNextBtn" onclick="nextBtnClick()">&raquo;</button>
                         </div>
                     </div>
                     <div class="row">
@@ -198,6 +203,29 @@ function showDetails(station, weathers) {
             </div>
         `;
     $('#sidebar').html(content);
+}
+
+function preBtnClick() {
+    if ( weekdayIndex <= 0 ){
+        weekdayIndex = 6;
+    } else {
+        weekdayIndex-=1;
+    }
+    setWeekday();
+}
+
+function nextBtnClick() {
+    if ( weekdayIndex >= 6 ){
+        weekdayIndex = 0;
+    } else {
+        weekdayIndex+=1;
+    }
+    setWeekday();
+}
+
+function setWeekday(){
+    let weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    document.getElementById("weekday").innerHTML = weekdays[weekdayIndex];
 }
 
 function showList(data) {
