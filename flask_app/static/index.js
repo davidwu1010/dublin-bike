@@ -164,43 +164,43 @@ function showDetails(station, weathers) {
 
     let content = `
         <div class="row" id="icon">
-                <div class="col">
+             <div class="col">
                 <button onclick="backHandler()" type="button">Dublin_Bike</button>
+             </div>
+        </div>
+        <div class="row" id="station">
+             <div class="col" >
+                <p id="station_info">${station.site_names}<br>${station.status}<br>${station.address}
+                     <br>${station.available_bike + "/" + station.bike_stand} bikes available</p>
+            </div>
+        </div>
+        <div class="row" id="weather" >
+            ${renderWeathers(weathers)}
+        </div>
+        <div class="row" id="chart">
+            <div class="col">
+                <div class="row">
+                    <b id="weekday">Monday</b>
                 </div>
-            </div>
-            <div class="row" id="station">
-                <div class="col" >
-                    <p id="station_info">${station.site_names}<br>${station.status}<br>${station.address}
-                             <br>${station.available_bike + "/" + station.bike_stand} bikes available</p>
-                </div>
-            </div>
-            <div class="row" id="weather" >
-              ${renderWeathers(weathers)}
-            </div>
-            <div class="row" id="chart">
-                <div class="col">
-                    <div class="row">
-                        <b id="weekday">Monday</b>
-                    <div>
-                    <div class="row" style="position: relative;">
-                        <div class="col-1">
-                            <button class="preNextBtn" onclick="preBtnClick()">&laquo;</button>
-                        </div>
-                        <div class="col-10">
-                            <canvas id="prediction-chart" class="zone"></canvas>
-                        </div>
-                         <div class="col-1">
-                            <button class="preNextBtn" onclick="nextBtnClick()">&raquo;</button>
-                        </div>
+                <div class="row" >
+                    <div class="col-1"  style="position: relative;">
+                        <button class="preNextBtn" onclick="preBtnClick()">&laquo;</button>
                     </div>
-                    <div class="row">
-                        <canvas id="hourly-chart" class="zone"></canvas>
-                    <div>
-                    <div class="row">
-                        <canvas id="daily-chart" class="zone"></canvas>
-                    <div>
+                    <div class="col-10">
+                        <canvas id="prediction-chart" class="zone"></canvas>
+                    </div>
+                    <div class="col-1" style="position: relative;">
+                        <button class="preNextBtn" onclick="nextBtnClick()">&raquo;</button>
+                    </div>
+                </div>
+                <div class="row" >
+                    <canvas id="hourly-chart" class="zone" style="margin: 25px;"></canvas>
+                </div>
+                <div class="row">
+                    <canvas id="daily-chart" class="zone" style="margin: 25px;"></canvas>
                 </div>
             </div>
+        </div>
         `;
     $('#sidebar').html(content);
 }
@@ -212,6 +212,7 @@ function preBtnClick() {
         weekdayIndex-=1;
     }
     setWeekday();
+    reloadCanvas();
 }
 
 function nextBtnClick() {
@@ -221,11 +222,19 @@ function nextBtnClick() {
         weekdayIndex+=1;
     }
     setWeekday();
+    reloadCanvas();
 }
 
 function setWeekday(){
     let weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     document.getElementById("weekday").innerHTML = weekdays[weekdayIndex];
+}
+
+function reloadCanvas(){
+    const canvas = document.getElementById("prediction-chart");
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    showPrediction(stationId);
 }
 
 function showList(data) {

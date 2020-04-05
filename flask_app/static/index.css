@@ -33,20 +33,6 @@ img {
     overflow: hidden;
 }
 
-#now_available_bike, #next_hour_available_bike {
-    border-radius: 50%;
-    width: 100px;
-    height: 100px;
-    line-height: 100px;
-    position: relative;
-    background-color: #33AAC0;
-    color: white;
-    display: inline-block;
-    text-align: center;
-    font-size: 30px;
-    overflow: hidden;
-}
-
 img {
     max-height: 100%;
     max-width: 100%;
@@ -69,6 +55,11 @@ img {
 
 .zone {
     width: auto;
+}
+
+.preNextBtn{
+    background-color: transparent;
+    color: Gray;
 }
 
 .row, .row > div {
