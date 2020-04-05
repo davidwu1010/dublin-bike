@@ -180,9 +180,11 @@ function showDetails(station, weathers) {
         <div class="row" id="chart">
             <div class="col">
                 <div class="row">
+                    <div class="col" style="text-align: center;">
                     <b id="weekday">Monday</b>
+                    </div>
                 </div>
-                <div class="row" >
+                <div class="row" id="prediction-chart-div">
                     <div class="col-1"  style="position: relative;">
                         <button class="preNextBtn" onclick="preBtnClick()">&laquo;</button>
                     </div>
@@ -193,11 +195,11 @@ function showDetails(station, weathers) {
                         <button class="preNextBtn" onclick="nextBtnClick()">&raquo;</button>
                     </div>
                 </div>
-                <div class="row" >
-                    <canvas id="hourly-chart" class="zone" style="margin: 25px;"></canvas>
+                <div class="row" style="margin:20px 30px;">
+                    <canvas id="hourly-chart" class="zone" ></canvas>
                 </div>
-                <div class="row">
-                    <canvas id="daily-chart" class="zone" style="margin: 25px;"></canvas>
+                <div class="row" style="margin:20px 30px;">
+                    <canvas id="daily-chart" class="zone"></canvas>
                 </div>
             </div>
         </div>

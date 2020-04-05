@@ -49,6 +49,7 @@ img {
     text-align: center;
 }
 
+
 #weather {
     font-size: 12px;
 }
@@ -60,12 +61,15 @@ img {
 .preNextBtn{
     background-color: transparent;
     color: Gray;
+    position: relative;
+    top: 40%;
 }
 
 .row, .row > div {
     margin: 0;
     padding: 0;
 }
+
 
 #station_info {
     padding-left: 10px;
