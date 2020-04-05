@@ -1,5 +1,21 @@
 'use strict';
 
+function showPrediction(id) {
+
+    $.getJSON('/api/hourly/' + id, predict_data => {
+
+        var labels = predict_data.map(function (item) {
+            return item.hour;
+        });
+
+        var data = predict_data.map(function (item) {
+            return item.available_bike;
+        });
+
+        createChart('bar', 'Precidtion Bike Occupancy', labels, data, 'prediction-chart');
+    });
+}
+
 function showHourly(id) {
 
     $.getJSON('/api/hourly/' + id, hourly_data => {
@@ -12,7 +28,7 @@ function showHourly(id) {
             return item.available_bike;
         });
 
-        createHourlyChart(labels, data);
+        createChart('line', 'Hourly Average Bike Available', labels, data, "hourly-chart");
     });
 }
 
@@ -28,20 +44,21 @@ function showDaily(id) {
             return item.available_bike;
         });
 
-        createDailyChart(labels, data);
+        createChart('line', 'Daily Average Bike Available', labels, data, "daily-chart", 'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)');
     });
 }
 
-function createHourlyChart(labels, data) {
+
+function createChart(chartType, title, labels, data, elementId, backgroundColor='rgba(54, 162, 235, 0.2)', borderColor='rgba(54, 162, 235, 1)') {
     var chartConfig = {
-        type: 'bar',
+        type: chartType,
         data: {
             labels: labels,
             datasets: [{
-                label: 'Hourly Average Bike',
+                label: title,
                 data: data,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: backgroundColor,
+                borderColor: borderColor,
                 borderWidth: 1
             }]
         },
@@ -52,7 +69,7 @@ function createHourlyChart(labels, data) {
             title: {
                 position: 'top',
                 display: true,
-                text: 'Hourly Average Bike Available'
+                text: title
             },
             scales: {
                 yAxes: [{
@@ -63,48 +80,9 @@ function createHourlyChart(labels, data) {
             }
         }
     };
-    var ctx = document.getElementById("hourly-chart").getContext('2d');
+    var ctx = document.getElementById(elementId).getContext('2d');
 
-    var myHourlyChart = new Chart(ctx, chartConfig);
-
-}
-
-function createDailyChart(labels, data) {
-    console.log(data);
-    console.log(labels);
-    var chartConfig = {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Daily Average Bike',
-                data: data,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            legend: {
-                display: false
-            },
-            title: {
-                position: 'top',
-                display: true,
-                text: 'Daily Average Bike Available'
-            },
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
-        }
-    };
-    var ctx = document.getElementById("daily-chart").getContext('2d');
-
-    var myDailyChart = new Chart(ctx, chartConfig);
+    var chart = new Chart(ctx, chartConfig);
 
 }
 
@@ -127,6 +105,7 @@ function clickHandler(id) {  // handler for click on markers or list items
         infowindow.setContent(content);
         infowindow.open(map);
     }).then(() => {
+        showPrediction(id)
         showHourly(id);
         showDaily(id);
     });
@@ -186,45 +165,37 @@ function showDetails(station, weathers) {
             </div>
             <div class="row" id="station">
                 <div class="col" >
-                    <p id="station_info">${station.site_names}<br>${station.status}<br>${station.address}</p>
-                </div>
-            </div>
-            <div class="row" id="occupancy">
-                <div class="col" >
-                    <div class="row">
-                        <div class="col" >
-                            <b>Bike Available</b>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-6">
-                           <div class="row">
-                               <div class="col"> Now</div>
-                            </div>
-                            <div class="row" style="padding: 0% 20% 20% 20%;">
-                               <div class="col" id="now_available_bike">
-                                 ${station.available_bike + "/" + station.bike_stand}
-                               </div>
-                            </div>
-                        </div>
-                        <div class="col-6" >
-                           <div class="row">
-                               <div class="col" >Next Hour</div>
-                            </div>
-                            <div class="row" style="padding: 0% 20% 20% 20%;">
-                               <div class="col" id="next_hour_available_bike">
-                                 ${station.available_bike + "/" + station.bike_stand}
-                               </div>
-                            </div>
-                        </div>
-                    </div>
+                    <p id="station_info">${station.site_names}<br>${station.status}<br>${station.address}
+                             <br>${station.available_bike + "/" + station.bike_stand} bikes available</p>
                 </div>
             </div>
             <div class="row" id="weather" >
               ${renderWeathers(weathers)}
             </div>
-            <canvas id="hourly-chart" class="zone"></canvas>
-            <canvas id="daily-chart" class="zone"></canvas>
+            <div class="row" id="chart">
+                <div class="col">
+                    <div class="row">
+                        <b id="weekday">Monday</b>
+                    <div>
+                    <div class="row">
+                        <div class="col-1" style="position: relative;">
+                            <button class="preNextBtn">&laquo;</button>
+                        </div>
+                        <div class="col-10">
+                            <canvas id="prediction-chart" class="zone"></canvas>
+                        </div>
+                         <div class="col-1" style="position: relative;">
+                            <button class="preNextBtn">&raquo;</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <canvas id="hourly-chart" class="zone"></canvas>
+                    <div>
+                    <div class="row">
+                        <canvas id="daily-chart" class="zone"></canvas>
+                    <div>
+                </div>
+            </div>
         `;
     $('#sidebar').html(content);
 }
