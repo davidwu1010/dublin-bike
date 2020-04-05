@@ -1,5 +1,24 @@
 'use strict';
 
+var stationId = 1;
+var weekdayIndex = 1;
+
+function showPrediction(id) {
+
+    $.getJSON('/api/hourly/' + id, predict_data => {
+
+        var labels = predict_data.map(function (item) {
+            return item.hour;
+        });
+
+        var data = predict_data.map(function (item) {
+            return item.available_bike;
+        });
+
+        createChart('bar', 'Precidtion Bike Occupancy', labels, data, 'prediction-chart');
+    });
+}
+
 function showHourly(id) {
 
     $.getJSON('/api/hourly/' + id, hourly_data => {
@@ -12,7 +31,7 @@ function showHourly(id) {
             return item.available_bike;
         });
 
-        createHourlyChart(labels, data);
+        createChart('line', 'Hourly Average Bike Available', labels, data, "hourly-chart");
     });
 }
 
@@ -28,20 +47,21 @@ function showDaily(id) {
             return item.available_bike;
         });
 
-        createDailyChart(labels, data);
+        createChart('line', 'Daily Average Bike Available', labels, data, "daily-chart", 'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)');
     });
 }
 
-function createHourlyChart(labels, data) {
+
+function createChart(chartType, title, labels, data, elementId, backgroundColor='rgba(54, 162, 235, 0.2)', borderColor='rgba(54, 162, 235, 1)') {
     var chartConfig = {
-        type: 'bar',
+        type: chartType,
         data: {
             labels: labels,
             datasets: [{
-                label: 'Hourly Average Bike',
+                label: title,
                 data: data,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
+                backgroundColor: backgroundColor,
+                borderColor: borderColor,
                 borderWidth: 1
             }]
         },
@@ -52,7 +72,7 @@ function createHourlyChart(labels, data) {
             title: {
                 position: 'top',
                 display: true,
-                text: 'Hourly Average Bike Available'
+                text: title
             },
             scales: {
                 yAxes: [{
@@ -63,53 +83,14 @@ function createHourlyChart(labels, data) {
             }
         }
     };
-    var ctx = document.getElementById("hourly-chart").getContext('2d');
+    var ctx = document.getElementById(elementId).getContext('2d');
 
-    var myHourlyChart = new Chart(ctx, chartConfig);
-
-}
-
-function createDailyChart(labels, data) {
-    console.log(data);
-    console.log(labels);
-    var chartConfig = {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Daily Average Bike',
-                data: data,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            legend: {
-                display: false
-            },
-            title: {
-                position: 'top',
-                display: true,
-                text: 'Daily Average Bike Available'
-            },
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
-        }
-    };
-    var ctx = document.getElementById("daily-chart").getContext('2d');
-
-    var myDailyChart = new Chart(ctx, chartConfig);
+    var chart = new Chart(ctx, chartConfig);
 
 }
 
 function clickHandler(id) {  // handler for click on markers or list items
-    console.log(id);
+    stationId = id;
     $.when(
         $.ajax('/api/stations/' + id),
         $.ajax('/api/weather/' + id)
@@ -127,6 +108,9 @@ function clickHandler(id) {  // handler for click on markers or list items
         infowindow.setContent(content);
         infowindow.open(map);
     }).then(() => {
+        weekdayIndex = new Date().getDay();
+        setWeekday();
+        showPrediction(id);
         showHourly(id);
         showDaily(id);
     });
@@ -180,53 +164,79 @@ function showDetails(station, weathers) {
 
     let content = `
         <div class="row" id="icon">
-                <div class="col">
+             <div class="col">
                 <button onclick="backHandler()" type="button">Dublin_Bike</button>
-                </div>
+             </div>
+        </div>
+        <div class="row" id="station">
+             <div class="col" >
+                <p id="station_info">${station.site_names}<br>${station.status}<br>${station.address}
+                     <br>${station.available_bike + "/" + station.bike_stand} bikes available</p>
             </div>
-            <div class="row" id="station">
-                <div class="col" >
-                    <p id="station_info">${station.site_names}<br>${station.status}<br>${station.address}</p>
-                </div>
-            </div>
-            <div class="row" id="occupancy">
-                <div class="col" >
-                    <div class="row">
-                        <div class="col" >
-                            <b>Bike Available</b>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-6">
-                           <div class="row">
-                               <div class="col"> Now</div>
-                            </div>
-                            <div class="row" style="padding: 0% 20% 20% 20%;">
-                               <div class="col" id="now_available_bike">
-                                 ${station.available_bike + "/" + station.bike_stand}
-                               </div>
-                            </div>
-                        </div>
-                        <div class="col-6" >
-                           <div class="row">
-                               <div class="col" >Next Hour</div>
-                            </div>
-                            <div class="row" style="padding: 0% 20% 20% 20%;">
-                               <div class="col" id="next_hour_available_bike">
-                                 ${station.available_bike + "/" + station.bike_stand}
-                               </div>
-                            </div>
-                        </div>
+        </div>
+        <div class="row" id="weather" >
+            ${renderWeathers(weathers)}
+        </div>
+        <div class="row" id="chart">
+            <div class="col">
+                <div class="row">
+                    <div class="col" style="text-align: center;">
+                    <b id="weekday">Monday</b>
                     </div>
                 </div>
+                <div class="row" id="prediction-chart-div">
+                    <div class="col-1"  style="position: relative;">
+                        <button class="preNextBtn" onclick="preBtnClick()">&laquo;</button>
+                    </div>
+                    <div class="col-10">
+                        <canvas id="prediction-chart" class="zone"></canvas>
+                    </div>
+                    <div class="col-1" style="position: relative;">
+                        <button class="preNextBtn" onclick="nextBtnClick()">&raquo;</button>
+                    </div>
+                </div>
+                <div class="row" style="margin:20px 30px;">
+                    <canvas id="hourly-chart" class="zone" ></canvas>
+                </div>
+                <div class="row" style="margin:20px 30px;">
+                    <canvas id="daily-chart" class="zone"></canvas>
+                </div>
             </div>
-            <div class="row" id="weather" >
-              ${renderWeathers(weathers)}
-            </div>
-            <canvas id="hourly-chart" class="zone"></canvas>
-            <canvas id="daily-chart" class="zone"></canvas>
+        </div>
         `;
     $('#sidebar').html(content);
+}
+
+function preBtnClick() {
+    if ( weekdayIndex <= 0 ){
+        weekdayIndex = 6;
+    } else {
+        weekdayIndex-=1;
+    }
+    setWeekday();
+    reloadCanvas();
+}
+
+function nextBtnClick() {
+    if ( weekdayIndex >= 6 ){
+        weekdayIndex = 0;
+    } else {
+        weekdayIndex+=1;
+    }
+    setWeekday();
+    reloadCanvas();
+}
+
+function setWeekday(){
+    let weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    document.getElementById("weekday").innerHTML = weekdays[weekdayIndex];
+}
+
+function reloadCanvas(){
+    const canvas = document.getElementById("prediction-chart");
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    showPrediction(stationId);
 }
 
 function showList(data) {
