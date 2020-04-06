@@ -254,7 +254,7 @@ function showList(data) {
         const content = `
             <li class="list-group-item" id="station-${stationNumber}">
                 <ul>
-                    <li>${station.address}</li>
+                    <li><b>${station.address}</b></li>
                     <li>${availability}</li>
                 </ul>
             </li>
@@ -300,6 +300,28 @@ var initMap = () => {
         });
 
     this.infowindow = new google.maps.InfoWindow();
+
+    // Try HTML5 geolocation.
+    //Setting and Scrolling user's location
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+        var pos = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        console.log("position"+position);
+        infowindow.setPosition(pos);
+        infowindow.setContent('You are here!');
+        infowindow.open(map);
+        map.setCenter(pos);
+      }, function() {
+        handleLocationError(true, infowindow, map.getCenter());
+      });
+    } else {
+        // Browser doesn't support Geolocation
+        handleLocationError(false, infowindow, map.getCenter());
+    }
+
     this.circles = new Map();  // HashMap not Google Map
     $.getJSON('/api/stations/', data => {
         for (const station of data.data) {
@@ -336,3 +358,8 @@ var initMap = () => {
         $('#weather-widget').css('display', 'block');
     });
 };
+
+function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+    infowindow.setPosition(pos);
+    infowindow.open(map);
+}
