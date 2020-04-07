@@ -52,6 +52,7 @@ function showDaily(id) {
 }
 
 
+
 function createChart(chartType, title, labels, data, elementId, backgroundColor='rgba(54, 162, 235, 0.2)', borderColor='rgba(54, 162, 235, 1)') {
     var chartConfig = {
         type: chartType,
@@ -89,14 +90,21 @@ function createChart(chartType, title, labels, data, elementId, backgroundColor=
 
 }
 
+function getNextHourBike(id) {
+    $.getJSON('/api/get_prediction_next_hour/' + id, data => {
+        var data_next_hour = data;
+    });
+}
+
 function clickHandler(id) {  // handler for click on markers or list items
     stationId = id;
     $.when(
         $.ajax('/api/stations/' + id),
-        $.ajax('/api/weather/' + id)
-    ).then((station, weather) => {
+        $.ajax('/api/weather/' + id),
+        $.getJSON('/api/get_prediction_next_hour/' + id)
+    ).then((station, weather, next_hour) => {
         document.body.style.cursor = 'default';
-        showDetails(station[0].data, weather[0]);
+        showDetails(station[0].data, weather[0], next_hour[0]);
         map.setCenter({lat: station[0].data.latitude,  // set map center to the clicked station
                        lng: station[0].data.longitude});
         const content = `
@@ -121,7 +129,8 @@ function backHandler() {  // back from station details to list when clicked
     $.getJSON('/api/stations/', data => showList(data));
 }
 
-function showDetails(station, weathers) {
+function showDetails(station, weathers, prediction) {
+    console.log(prediction[0].next_hour);
     function renderWeathers(weathers) {
         function renderWeather(weather) {
             const content = `
@@ -188,6 +197,7 @@ function showDetails(station, weathers) {
                     <div class="col-1"  style="position: relative;">
                         <button class="preNextBtn" onclick="preBtnClick()">&laquo;</button>
                     </div>
+
                     <div class="col-10">
                         <canvas id="prediction-chart" class="zone"></canvas>
                     </div>
