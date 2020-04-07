@@ -2,17 +2,20 @@
 
 var stationId = 1;
 var weekdayIndex = 1;
+let weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 function showPrediction(id) {
 
-    $.getJSON('/api/hourly/' + id, predict_data => {
+    $.getJSON('/api/get_prediction_daily/' + id, data => {
+
+        var predict_data = data[weekdays[weekdayIndex].substring(0, 3)];
 
         var labels = predict_data.map(function (item) {
             return item.hour;
         });
 
         var data = predict_data.map(function (item) {
-            return item.available_bike;
+            return item.bike_predict;
         });
 
         createChart('bar', 'Precidtion Bike Occupancy', labels, data, 'prediction-chart');
@@ -230,7 +233,7 @@ function nextBtnClick() {
 }
 
 function setWeekday(){
-    let weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
     document.getElementById("weekday").innerHTML = weekdays[weekdayIndex];
 }
 
