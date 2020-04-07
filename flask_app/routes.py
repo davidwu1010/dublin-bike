@@ -1,6 +1,7 @@
+import json
+
 from flask import Flask, render_template, jsonify, request
 from flask_app.bike_predict_next_hour import bike_predict_next_hour
-from flask_app.houly_predict import bike_predict_hourly
 from flask_app.daily_predict import bike_predict_daily
 from models.schemas import Forecast, CurrentWeather, DublinBike
 from flask_sqlalchemy import SQLAlchemy
@@ -78,12 +79,6 @@ def get_prediction(station_id):
     day = request.args.get('day')
     time = request.args.get('time')
     return str(day) + str(time)
-
-
-@app.route('/api/get_prediction_hourly/<int:station_id>')
-def get_prediction_hourly_chart(station_id):
-    data = bike_predict_hourly(station_id)
-    return data
 
 
 @app.route('/api/get_prediction_daily/<int:station_id>')
