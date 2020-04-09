@@ -3,11 +3,14 @@
 var stationId = 1;
 var weekdayIndex = 1;
 let weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+var readyCharts = 0;
+var predictionData;
+var predictionChart;
 
 function showPrediction(id) {
 
     $.getJSON('/api/get_prediction_daily/' + id, data => {
-
+        predictionData = data;
         var predict_data = data[weekdays[weekdayIndex].substring(0, 3)];
 
         var labels = predict_data.map(function (item) {
@@ -18,7 +21,8 @@ function showPrediction(id) {
             return item.bike_predict;
         });
 
-        createChart('bar', 'Bike Occupancy Prediction', labels, data, 'prediction-chart');
+        predictionChart =
+            createChart('bar', 'Available Bikes Prediction', labels, data, 'prediction-chart');
     });
 }
 
@@ -68,6 +72,15 @@ function createChart(chartType, title, labels, data, elementId, backgroundColor=
             }]
         },
         options: {
+            animation: {
+                onComplete: () => {
+                    readyCharts += 1;
+                    if (readyCharts == 3) {
+                        $('#spinner').css('display', 'none');
+                        $('#chart').removeClass('d-none');
+                    }
+                }
+            },
             legend: {
                 display: false
             },
@@ -88,7 +101,7 @@ function createChart(chartType, title, labels, data, elementId, backgroundColor=
     var ctx = document.getElementById(elementId).getContext('2d');
 
     var chart = new Chart(ctx, chartConfig);
-
+    return chart;
 }
 
 function clickHandler(id) {  // handler for click on markers or list items
@@ -112,6 +125,7 @@ function clickHandler(id) {  // handler for click on markers or list items
     }).then(() => {
         weekdayIndex = new Date().getDay();
         setWeekday();
+        readyCharts = 0;
         showPrediction(id);
         showHourly(id);
         showDaily(id);
@@ -167,7 +181,7 @@ function showDetails(station, weathers) {
     let content = `
         <div class="row" id="icon">
              <div class="col">
-                <button onclick="backHandler()" type="button">Dublin Bikes</button>
+                <button onclick="backHandler()" type="button">Back</button>
              </div>
         </div>
         <div class="row" id="station">
@@ -179,7 +193,7 @@ function showDetails(station, weathers) {
         <div class="row" id="weather" >
             ${renderWeathers(weathers)}
         </div>
-        <div class="row" id="chart">
+        <div class="row d-none" id="chart">
             <div class="col">
                 <div class="row">
                     <div class="col" style="text-align: center;">
@@ -202,6 +216,13 @@ function showDetails(station, weathers) {
                 </div>
                 <div class="row" style="margin:20px 30px;">
                     <canvas id="daily-chart" class="zone"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="row flex-grow-1" id="spinner">
+            <div class="col-12 d-flex justify-content-center">
+                <div class="spinner-border text-primary align-self-center" style="width: 6rem; height: 6rem;" role="status">
+                    <span class="sr-only">Loading...</span>
                 </div>
             </div>
         </div>
@@ -234,11 +255,14 @@ function setWeekday(){
     document.getElementById("weekday").innerHTML = weekdays[weekdayIndex];
 }
 
-function reloadCanvas(){
-    const canvas = document.getElementById("prediction-chart");
-    const context = canvas.getContext('2d');
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    showPrediction(stationId);
+function reloadCanvas() {
+    const predict_data = predictionData[weekdays[weekdayIndex].substring(0, 3)];
+    const labels = predict_data.map(({hour}) => hour );
+    const data = predict_data.map(({bike_predict}) => bike_predict);
+
+    predictionChart.data.labels = labels;
+    predictionChart.data.datasets[0].data = data;
+    predictionChart.update(0);
 }
 
 function showList(data) {

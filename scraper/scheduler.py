@@ -12,7 +12,7 @@ def signal_handler(sig, frame):
 
 
 # scheduler will throw error if time zone not set
-os.environ['TZ'] = 'Europe/Dublin'
+os.environ['TZ'] = 'UTC'
 sys.tracebacklimit = 0
 
 signal.signal(signal.SIGINT, signal_handler)  # trap SIGINT (CTRL+C)
