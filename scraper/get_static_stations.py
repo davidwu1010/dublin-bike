@@ -6,13 +6,8 @@ from models.schemas import Base, StaticBike
 from config import MySQL
 
 if __name__ == "__main__":
-    t =time()
-    host = MySQL.host
-    user = MySQL.username
-    password = MySQL.password
-    database = MySQL.database
-
-    engine = create_engine(f'mysql+pymysql://{user}:{password}@{host}/{database}')
+    t = time()
+    engine = create_engine(MySQL.URI)
     Base.metadata.create_all(engine)
 
     session = sessionmaker()
@@ -37,10 +32,7 @@ if __name__ == "__main__":
             s.commit()
 
     except:
-        s.rollback() #Rollback the changes on error
+        s.rollback()  # Rollback the changes on error
     finally:
-        s.close() #Close the connection
+        s.close()  # Close the connection
     print("Time elapsed: " + str(time() - t) + " s.")
-
-
-

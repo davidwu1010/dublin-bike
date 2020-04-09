@@ -1,7 +1,4 @@
-import json
-
-from flask import Flask, render_template, jsonify, request
-from flask_app.bike_predict_next_hour import bike_predict_next_hour
+from flask import Flask, render_template, jsonify
 from flask_app.daily_predict import bike_predict_daily
 from models.schemas import Forecast, CurrentWeather, DublinBike
 from flask_sqlalchemy import SQLAlchemy
@@ -24,7 +21,7 @@ def index():
 
 @app.route('/api/weather/<int:station_id>')
 def get_weather(station_id):
-    # get forcast weather data from db
+    # get forecast weather data from db
     forecasts = db.session.query(Forecast) \
         .filter(Forecast.stationNum == station_id,
                 Forecast.timestamp > datetime.utcnow()) \
@@ -74,22 +71,9 @@ def daily_chart(station_id):
     return data
 
 
-@app.route('/api/prediction/<int:station_id>')
-def get_prediction(station_id):
-    day = request.args.get('day')
-    time = request.args.get('time')
-    return str(day) + str(time)
-
-
 @app.route('/api/get_prediction_daily/<int:station_id>')
 def get_prediction_daily_chart(station_id):
     data = bike_predict_daily(station_id)
-    return data
-
-
-@app.route('/api/get_prediction_next_hour/<int:station_id>')
-def get_prediction_next_hour(station_id):
-    data = bike_predict_next_hour(station_id)
     return data
 
 
