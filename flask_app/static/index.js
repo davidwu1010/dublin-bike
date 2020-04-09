@@ -321,7 +321,7 @@ var initMap = () => {
     this.map = new google.maps.Map(
         document.getElementById('map'), {
             zoom: 15,
-            center: {lat: 53.342964, lng: -6.286889},  // dublin center
+            center: {lat: 53.3568, lng: -6.26814},  // Blessington Street station
             fullscreenControl: false
         });
 
@@ -396,5 +396,6 @@ var initMap = () => {
 
 function handleLocationError(browserHasGeolocation, infoWindow, pos) {
     infowindow.setPosition(pos);
+    infowindow.setContent('Blessington Street');
     infowindow.open(map);
 }
