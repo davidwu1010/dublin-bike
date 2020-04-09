@@ -1,17 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models.schemas import Base, DublinBike
+from models.schemas import Base
 from config import MySQL
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 
-host = MySQL.host
-user = MySQL.username
-password = MySQL.password
-database = MySQL.database
-
-engine = create_engine(f'mysql+pymysql://{user}:{password}@{host}/{database}')
+engine = create_engine(MySQL.URI)
 Base.metadata.create_all(engine)
 
 session = sessionmaker()
@@ -34,5 +27,3 @@ def get_hourly_mean_json(number_input):
     df["hour"] = df["scraping_time"].dt.hour
     hourly_mean = df.groupby("hour").mean().reset_index()
     return hourly_mean.to_json(orient='records')
-
-
