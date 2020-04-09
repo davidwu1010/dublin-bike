@@ -6,7 +6,7 @@ from models.schemas import Base, DublinBike
 from config import MySQL, APIKeys
 import current_weather_scraper
 
-
+'''Call the scraper and save the data in the DB'''
 def scrape():
     engine = create_engine(MySQL.URI)
     Base.metadata.create_all(engine)  # Create table
@@ -25,6 +25,7 @@ def scrape():
         dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         current_weather_scraper.scrape(dt)
 
+        #Build table with columns
         for row in response:
             scraping_time = dt
             number = row["number"]

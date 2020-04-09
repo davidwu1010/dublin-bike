@@ -5,6 +5,7 @@ from config import MySQL
 import pandas as pd
 
 
+#Get the latest data and save as pickle format, and ready to retrain model
 engine = create_engine(MySQL.URI)
 Base.metadata.create_all(engine)
 

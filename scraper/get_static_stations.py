@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from models.schemas import Base, StaticBike
 from config import MySQL
 
+#Build static bike station id table
 if __name__ == "__main__":
     t = time()
     engine = create_engine(MySQL.URI)

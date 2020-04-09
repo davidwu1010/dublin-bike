@@ -6,13 +6,13 @@ import pandas as pd
 import numpy as np
 import joblib
 
-import joblib
 def bike_predict_daily(number_input):
     host = MySQL.host
     user = MySQL.username
     password = MySQL.password
     database = MySQL.database
 
+    #Create SQL engine to connect to database
     engine = create_engine(f'mysql+pymysql://{user}:{password}@{host}/{database}')
     Base.metadata.create_all(engine)
 
@@ -33,10 +33,12 @@ def bike_predict_daily(number_input):
     weather_df = pd.read_sql_query(sql=query_weather, con=engine, params={'number': number_input},
                                    parse_dates=['scraping_time'])
 
+    '''Add label'''
     def labeling_eval(df):
         df["available_bike_ratio"] = df['available_bike'] / df['bike_stand']
         return df
 
+    '''Merge weather and bike table'''
     def merge_df(bike_df, weather_df):
         combined_df = pd.merge(bike_df, weather_df, how='inner',
                                left_on=['number', 'scraping_time'],
@@ -44,16 +46,19 @@ def bike_predict_daily(number_input):
                                suffixes=('_bike', '_weather'))
         return combined_df
 
+    '''Extract hour of the day'''
     def datetime_conversion(df, df_col):
         df['hour'] = df[df_col].dt.hour
         return df
 
+    '''Feature engineeer the time feature to cyclic sine cosine representation'''
     def time_transform(df, col, max_val):
         df[col + '_sin'] = np.sin(2 * np.pi * df[col] / max_val)
         df[col + '_cos'] = np.cos(2 * np.pi * df[col] / max_val)
         df = df.drop([col], axis=1)
         return df
 
+    '''Drop redundant columns'''
     def data_cleaning(df):
         pd.set_option('display.max_columns', 500)
         col_to_drop = ['address', 'site_names', 'bonus', 'last_update', 'datetime', 'icon', 'lon', 'lat', 'stationNum',
@@ -65,6 +70,7 @@ def bike_predict_daily(number_input):
 
         return df
 
+    '''Convert data type'''
     def data_type_conversion(df):
         df['banking'] = df['banking'].astype('int32')
         df['code'] = df['code'].astype('int32') // 100
@@ -86,21 +92,25 @@ def bike_predict_daily(number_input):
     daily_df.drop('scraping_time', axis=1, inplace =True)
     total_bike_stand = combined_df.loc[0,'bike_stand']
 
+    #Inference with model
     model_name = 'lgbm_model_daily.pkl'
     model = joblib.load(model_name)
     y_prediction = model.predict(daily_df)
+
+    #Reformat the data to json format
     data = pd.DataFrame({'number': daily_df['number'], 'hour': hour, 'weekday': weekday,
                          'bike_predict':y_prediction *total_bike_stand})
     days = {1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat', 7: 'Sun'}
     data['weekday'] = data['weekday'].apply(lambda x: days[x])
     data = data.set_index(['weekday'])
     predict_daily_json = {}
+
+    #Combine json data
     for i in data.index:
         predict_daily_json[i] = data.loc[i, ['number','hour','bike_predict']].to_dict(orient='records')
 
     return predict_daily_json
-print(bike_predict_daily(5)['Fri'])
-print(bike_predict_daily(5)['Tue'])
+
 
 
 

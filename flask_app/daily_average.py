@@ -12,7 +12,7 @@ session = sessionmaker()
 session.configure(bind=engine)
 s = session()
 
-
+'''Get bike data and group by day'''
 def get_daily_mean_json(number_input):
     query = "SELECT scraping_time, number, address,\
              site_names, latitude, longitude,\
