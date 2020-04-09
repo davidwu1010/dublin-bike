@@ -4,11 +4,13 @@ var stationId = 1;
 var weekdayIndex = 1;
 let weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 var readyCharts = 0;
+var predictionData;
+var predictionChart;
 
 function showPrediction(id) {
 
     $.getJSON('/api/get_prediction_daily/' + id, data => {
-
+        predictionData = data;
         var predict_data = data[weekdays[weekdayIndex].substring(0, 3)];
 
         var labels = predict_data.map(function (item) {
@@ -19,7 +21,8 @@ function showPrediction(id) {
             return item.bike_predict;
         });
 
-        createChart('bar', 'Bike Occupancy Prediction', labels, data, 'prediction-chart');
+        predictionChart =
+            createChart('bar', 'Available Bikes Prediction', labels, data, 'prediction-chart');
     });
 }
 
@@ -98,7 +101,7 @@ function createChart(chartType, title, labels, data, elementId, backgroundColor=
     var ctx = document.getElementById(elementId).getContext('2d');
 
     var chart = new Chart(ctx, chartConfig);
-
+    return chart;
 }
 
 function clickHandler(id) {  // handler for click on markers or list items
@@ -252,11 +255,14 @@ function setWeekday(){
     document.getElementById("weekday").innerHTML = weekdays[weekdayIndex];
 }
 
-function reloadCanvas(){
-    const canvas = document.getElementById("prediction-chart");
-    const context = canvas.getContext('2d');
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    showPrediction(stationId);
+function reloadCanvas() {
+    const predict_data = predictionData[weekdays[weekdayIndex].substring(0, 3)];
+    const labels = predict_data.map(({hour}) => hour );
+    const data = predict_data.map(({bike_predict}) => bike_predict);
+
+    predictionChart.data.labels = labels;
+    predictionChart.data.datasets[0].data = data;
+    predictionChart.update(0);
 }
 
 function showList(data) {
