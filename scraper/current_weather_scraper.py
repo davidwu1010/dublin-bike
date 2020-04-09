@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from models.schemas import Base, CurrentWeather, StaticBike
 from config import MySQL, APIKeys
 
+
 # return weatherBit weather condition icon by given open weather icon
 def to_weatherbit_icon(openweatherIcon):
 
@@ -17,9 +18,7 @@ def to_weatherbit_icon(openweatherIcon):
 
 def scrape(dt):
 
-    engine = create_engine(f'mysql+pymysql://{MySQL.username}:{MySQL.password}'
-                           f'@{MySQL.host}/{MySQL.database}')
-
+    engine = create_engine(MySQL.URI)
     Base.metadata.create_all(engine)  # Create table
     Session = sessionmaker(bind=engine)
     session = Session()

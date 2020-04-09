@@ -7,13 +7,9 @@ from models.schemas import Base, DublinBike
 from config import MySQL, APIKeys
 import current_weather_scraper
 
-def scrape():
-    host = MySQL.host
-    user = MySQL.username
-    password = MySQL.password
-    database = MySQL.database
 
-    engine = create_engine(f'mysql+pymysql://{user}:{password}@{host}/{database}')
+def scrape():
+    engine = create_engine(MySQL.URI)
     Base.metadata.create_all(engine)  # Create table
     Session = sessionmaker(bind=engine)
     session = Session()
