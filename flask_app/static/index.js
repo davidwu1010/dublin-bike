@@ -39,9 +39,6 @@ function showHourly(id) {
 }
 
 function showDaily(id) {
-    $.getJSON('/api/get_prediction_daily/' + id, data => {
-        console.log(data.Fri[0]);
-        });
     $.getJSON('/api/daily/' + id, daily_data => {
          console.log(daily_data);
         var labels = daily_data.map(function (item) {
