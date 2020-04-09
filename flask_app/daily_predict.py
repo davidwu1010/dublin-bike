@@ -97,7 +97,7 @@ def bike_predict_daily(number_input):
     predict_daily_json = {}
     for i in data.index:
         predict_daily_json[i] = data\
-            .loc['Fri', ['number', 'hour', 'bike_predict']]\
+            .loc[i, ['number', 'hour', 'bike_predict']]\
             .to_dict(orient='records')
 
     return predict_daily_json
