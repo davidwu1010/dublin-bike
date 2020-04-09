@@ -18,7 +18,7 @@ function showPrediction(id) {
             return item.bike_predict;
         });
 
-        createChart('bar', 'Precidtion Bike Occupancy', labels, data, 'prediction-chart');
+        createChart('bar', 'Bike Occupancy Prediction', labels, data, 'prediction-chart');
     });
 }
 
@@ -167,7 +167,7 @@ function showDetails(station, weathers) {
     let content = `
         <div class="row" id="icon">
              <div class="col">
-                <button onclick="backHandler()" type="button">Dublin_Bike</button>
+                <button onclick="backHandler()" type="button">Dublin Bikes</button>
              </div>
         </div>
         <div class="row" id="station">
@@ -271,7 +271,7 @@ function showList(data) {
 
     document.getElementById('sidebar').innerHTML = `
         <div class="col">
-                <button onclick="backHandler()" type="button">Dublin_Bike</button>
+                <button onclick="backHandler()" type="button">Dublin Bikes</button>
         </div>
         <ul class="list-group-flush p-0 vh-100" id="list">
             ${listItems}
