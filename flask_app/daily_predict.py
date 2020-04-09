@@ -1,4 +1,3 @@
-import json
 
 from sqlalchemy import create_engine
 from models.schemas import Base
@@ -84,7 +83,7 @@ def bike_predict_daily(number_input):
     hour = daily_df['hour'].astype('int32')
     daily_df = time_transform(daily_df, 'weekday', 7)
     daily_df = time_transform(daily_df, 'hour', 23)
-    daily_df.drop('scraping_time', axis = 1, inplace =True)
+    daily_df.drop('scraping_time', axis=1, inplace =True)
     total_bike_stand = combined_df.loc[0,'bike_stand']
 
     model_name = 'lgbm_model_daily.pkl'
