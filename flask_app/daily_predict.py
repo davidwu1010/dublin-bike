@@ -1,4 +1,5 @@
 import datetime
+import pytz
 from sqlalchemy import create_engine
 from models.schemas import Base
 from config import MySQL
@@ -94,7 +95,7 @@ def bike_predict_daily(number_input):
     combined_df = data_cleaning(combined_df)
     combined_df = datetime_conversion(combined_df, "scraping_time")
     daily_df = combined_df.resample('H', on='scraping_time').mean( ).reset_index( )
-    weekday = daily_df['weekday'].astype('int32')
+    weekday = (7 - ((8 - daily_df['weekday']) % 7)).astype('int32')
     hour = daily_df['hour'].astype('int32')
     daily_df = time_transform(daily_df, 'weekday', 7)
     daily_df = time_transform(daily_df, 'hour', 23)
