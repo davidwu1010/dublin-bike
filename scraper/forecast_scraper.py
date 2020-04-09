@@ -5,7 +5,7 @@ from models.schemas import Base, Forecast, StaticBike
 from config import MySQL, APIKeys
 from datetime import datetime
 
-
+# return weatherBit weather icon by given dark sky icon
 def to_icon_code(description, is_night):
     icons = {'clear-day': 'c01', 'clear-night': 'c01', 'rain': 'r01',
              'snow': 's01', 'sleet': 's04', 'wind': 's05', 'fog': 'a05',
@@ -36,7 +36,8 @@ def scrape():
             parameters = {'exclude': 'minutely,flags', 'units': 'si'}
             lat = station.latitude
             lon = station.longitude
-            api = f'https://api.darksky.net/forecast/{APIKeys.darksky_key}/{lat},{lon}'
+            api = f'https://api.darksky.net/forecast/' \
+                  f'{APIKeys.darksky_key}/{lat},{lon}'
 
             response = requests.get(api, params=parameters)
             response.raise_for_status()  # throw an error if made a bad request
@@ -52,9 +53,12 @@ def scrape():
                     temperature = forecast['temperature']
                     description = forecast['summary']
                     icon = to_icon_code(forecast['icon'], is_night)
-                    session.add(Forecast(timestamp=timestamp, temperature=temperature,
-                                         description=description, icon=icon,
-                                         lat=station.latitude, lon=station.longitude,
+                    session.add(Forecast(timestamp=timestamp,
+                                         temperature=temperature,
+                                         description=description,
+                                         icon=icon,
+                                         lat=station.latitude,
+                                         lon=station.longitude,
                                          stationNum=station.number))
             session.commit()
     else:
