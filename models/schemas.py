@@ -46,7 +46,8 @@ class CurrentWeather(Base):
     code = Column(String(30))
     weekday = Column(Integer)
 
-    def __init__(self, stationNum, datetime, lon, lat, temperature, wind_spd, clouds, sunset, description, code, icon, weekday):
+    def __init__(self, stationNum, datetime, lon, lat, temperature, wind_spd,
+                 clouds, sunset, description, code, icon, weekday):
         self.stationNum = stationNum
         self.datetime = datetime
         self.lon = lon
