@@ -5,12 +5,7 @@ from config import MySQL
 import pandas as pd
 
 
-host = MySQL.host
-user = MySQL.username
-password = MySQL.password
-database = MySQL.database
-
-engine = create_engine(f'mysql+pymysql://{user}:{password}@{host}/{database}')
+engine = create_engine(MySQL.URI)
 Base.metadata.create_all(engine)
 
 session = sessionmaker()
@@ -24,20 +19,14 @@ query_weather = "SELECT *\
          FROM current_weather\
          WHERE number = %(number)s"
 
-bike_df = pd.read_sql_table(table_name="dublin_bike", schema="development",  con=engine, parse_dates=['scraping_time'])
-weather_df = pd.read_sql_table(table_name="current_weather", schema="development",  con=engine, parse_dates=['scraping_time'])
+bike_df = pd.read_sql_table(table_name="dublin_bike", schema="development",
+                            con=engine, parse_dates=['scraping_time'])
+weather_df = pd.read_sql_table(table_name="current_weather",
+                               schema="development", con=engine,
+                               parse_dates=['scraping_time'])
 weather_df.to_pickle("./weather_df.pkl")
 bike_df.to_pickle("./bike_df.pkl")
 # bike_df = pd.read_pickle("./bike_df.pkl")
 # weather_df = pd.read_pickle("./weather_df.pkl")
 print(bike_df.tail(10))
 print(weather_df.tail(10))
-
-
-
-
-
-
-
-
-

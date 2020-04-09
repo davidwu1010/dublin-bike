@@ -18,7 +18,7 @@ function showPrediction(id) {
             return item.bike_predict;
         });
 
-        createChart('bar', 'Precidtion Bike Occupancy', labels, data, 'prediction-chart');
+        createChart('bar', 'Bike Occupancy Prediction', labels, data, 'prediction-chart');
     });
 }
 
@@ -39,7 +39,6 @@ function showHourly(id) {
 }
 
 function showDaily(id) {
-
     $.getJSON('/api/daily/' + id, daily_data => {
          console.log(daily_data);
         var labels = daily_data.map(function (item) {
@@ -168,7 +167,7 @@ function showDetails(station, weathers) {
     let content = `
         <div class="row" id="icon">
              <div class="col">
-                <button onclick="backHandler()" type="button">Dublin_Bike</button>
+                <button onclick="backHandler()" type="button">Dublin Bikes</button>
              </div>
         </div>
         <div class="row" id="station">
@@ -272,7 +271,7 @@ function showList(data) {
 
     document.getElementById('sidebar').innerHTML = `
         <div class="col">
-                <button onclick="backHandler()" type="button">Dublin_Bike</button>
+                <button onclick="backHandler()" type="button">Dublin Bikes</button>
         </div>
         <ul class="list-group-flush p-0 vh-100" id="list">
             ${listItems}
@@ -328,8 +327,17 @@ var initMap = () => {
     this.circles = new Map();  // HashMap not Google Map
     $.getJSON('/api/stations/', data => {
         for (const station of data.data) {
-            const color = station.available_bike / station.bike_stand > 0.2
-                ? 'green' : 'red';
+            const availability = station.available_bike / station.bike_stand;
+
+            let color;
+            if (availability <= 0.1) {
+                color = 'red';
+            } else if (availability <= 0.4) {
+                color = 'orange';
+            } else {
+                color = 'green';
+            }
+
             const circle = new google.maps.Circle({
                 strokeColor: 'white',
                 strokeOpacity: 0.4,

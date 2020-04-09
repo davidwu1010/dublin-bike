@@ -1,5 +1,3 @@
-import json
-
 from flask import Flask, render_template, jsonify
 from flask_app.daily_predict import bike_predict_daily
 from models.schemas import Forecast, CurrentWeather, DublinBike
@@ -23,7 +21,7 @@ def index():
 
 @app.route('/api/weather/<int:station_id>')
 def get_weather(station_id):
-    # get forcast weather data from db
+    # get forecast weather data from db
     forecasts = db.session.query(Forecast) \
         .filter(Forecast.stationNum == station_id,
                 Forecast.timestamp > datetime.utcnow()) \
@@ -72,10 +70,12 @@ def daily_chart(station_id):
     data = get_daily_mean_json(station_id)
     return data
 
+
 @app.route('/api/get_prediction_daily/<int:station_id>')
 def get_prediction_daily_chart(station_id):
     data = bike_predict_daily(station_id)
     return data
+
 
 if __name__ == '__main__':
     app.run()

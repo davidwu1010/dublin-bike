@@ -5,6 +5,7 @@ from models.schemas import Base, Forecast, StaticBike
 from config import MySQL, APIKeys
 from datetime import datetime
 
+
 # return weatherBit weather icon by given dark sky icon
 def to_icon_code(description, is_night):
     icons = {'clear-day': 'c01', 'clear-night': 'c01', 'rain': 'r01',
