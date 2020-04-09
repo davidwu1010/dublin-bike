@@ -3,6 +3,7 @@
 var stationId = 1;
 var weekdayIndex = 1;
 let weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+var readyCharts = 0;
 
 function showPrediction(id) {
 
@@ -68,6 +69,15 @@ function createChart(chartType, title, labels, data, elementId, backgroundColor=
             }]
         },
         options: {
+            animation: {
+                onComplete: () => {
+                    readyCharts += 1;
+                    if (readyCharts == 3) {
+                        $('#spinner').css('display', 'none');
+                        $('#chart').removeClass('d-none');
+                    }
+                }
+            },
             legend: {
                 display: false
             },
@@ -112,6 +122,7 @@ function clickHandler(id) {  // handler for click on markers or list items
     }).then(() => {
         weekdayIndex = new Date().getDay();
         setWeekday();
+        readyCharts = 0;
         showPrediction(id);
         showHourly(id);
         showDaily(id);
@@ -167,7 +178,7 @@ function showDetails(station, weathers) {
     let content = `
         <div class="row" id="icon">
              <div class="col">
-                <button onclick="backHandler()" type="button">Dublin Bikes</button>
+                <button onclick="backHandler()" type="button">Back</button>
              </div>
         </div>
         <div class="row" id="station">
@@ -179,7 +190,7 @@ function showDetails(station, weathers) {
         <div class="row" id="weather" >
             ${renderWeathers(weathers)}
         </div>
-        <div class="row" id="chart">
+        <div class="row d-none" id="chart">
             <div class="col">
                 <div class="row">
                     <div class="col" style="text-align: center;">
@@ -202,6 +213,13 @@ function showDetails(station, weathers) {
                 </div>
                 <div class="row" style="margin:20px 30px;">
                     <canvas id="daily-chart" class="zone"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="row flex-grow-1" id="spinner">
+            <div class="col-12 d-flex justify-content-center">
+                <div class="spinner-border text-primary align-self-center" style="width: 6rem; height: 6rem;" role="status">
+                    <span class="sr-only">Loading...</span>
                 </div>
             </div>
         </div>
