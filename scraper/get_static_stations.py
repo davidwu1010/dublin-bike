@@ -36,6 +36,3 @@ if __name__ == "__main__":
     finally:
         s.close()  # Close the connection
     print("Time elapsed: " + str(time() - t) + " s.")
-
-
-
