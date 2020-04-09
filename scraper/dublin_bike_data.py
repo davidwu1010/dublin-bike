@@ -55,6 +55,7 @@ def scrape():
                                    bonus=bonus))
 
         session.commit()
+        session.close()
         return dt
 
 
