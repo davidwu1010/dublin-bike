@@ -4,8 +4,6 @@ from models.schemas import Forecast, CurrentWeather, DublinBike
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 import config
-from flask_app.hourly_average import get_hourly_mean_json
-from flask_app.daily_average import get_daily_mean_json
 from datetime import datetime
 
 app = Flask(__name__)
@@ -61,14 +59,33 @@ def get_station(station_id):
 
 @app.route("/api/hourly/<int:station_id>")
 def hourly_chart(station_id):
-    data = get_hourly_mean_json(station_id)
-    return data
+    results = db.session\
+        .query(func.avg(DublinBike.available_bike))\
+        .filter(DublinBike.number == station_id)\
+        .group_by(func.hour(DublinBike.scraping_time))\
+        .order_by(func.hour(DublinBike.scraping_time))\
+        .all()
+
+    return jsonify([
+        {'hour': hour,
+         'available_bike': float(results[hour][0])} for hour in range(24)
+    ])
 
 
 @app.route("/api/daily/<int:station_id>")
 def daily_chart(station_id):
-    data = get_daily_mean_json(station_id)
-    return data
+    results = db.session\
+        .query(func.avg(DublinBike.available_bike))\
+        .filter(DublinBike.number == station_id)\
+        .group_by(func.weekday(DublinBike.scraping_time))\
+        .order_by(func.weekday(DublinBike.scraping_time))\
+        .all()
+
+    dow = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+    return jsonify([
+        {'day_of_week': dow[i],
+         'available_bike': float(results[i][0])} for i in range(7)
+    ])
 
 
 @app.route('/api/get_prediction_daily/<int:station_id>')
