@@ -89,15 +89,19 @@ def bike_predict_daily(number_input):
     model_name = 'lgbm_model_daily.pkl'
     model = joblib.load(model_name)
     y_prediction = model.predict(daily_df)
-    data = pd.DataFrame({'number':daily_df['number'], 'hour': hour, 'weekday': weekday,
+    data = pd.DataFrame({'number': daily_df['number'], 'hour': hour, 'weekday': weekday,
                          'bike_predict':y_prediction *total_bike_stand})
     days = {1: 'Mon', 2: 'Tue', 3: 'Wed', 4: 'Thu', 5: 'Fri', 6: 'Sat', 7: 'Sun'}
     data['weekday'] = data['weekday'].apply(lambda x: days[x])
     data = data.set_index(['weekday'])
     predict_daily_json = {}
     for i in data.index:
-        predict_daily_json[i] = data.loc['Fri',['number','hour','bike_predict']].to_dict(orient='records')
+        predict_daily_json[i] = data.loc[i, ['number','hour','bike_predict']].to_dict(orient='records')
 
     return predict_daily_json
+print(bike_predict_daily(5)['Fri'])
+print(bike_predict_daily(5)['Tue'])
+
+
 
 
