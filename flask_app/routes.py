@@ -62,8 +62,8 @@ def hourly_chart(station_id):
     results = db.session\
         .query(func.avg(DublinBike.available_bike))\
         .filter(DublinBike.number == station_id)\
-        .group_by(func.hour(DublinBike.scraping_time))\
-        .order_by(func.hour(DublinBike.scraping_time))\
+        .group_by(func.hour(DublinBike.localtime))\
+        .order_by(func.hour(DublinBike.localtime))\
         .all()
 
     return jsonify([
@@ -77,8 +77,8 @@ def daily_chart(station_id):
     results = db.session\
         .query(func.avg(DublinBike.available_bike))\
         .filter(DublinBike.number == station_id)\
-        .group_by(func.weekday(DublinBike.scraping_time))\
-        .order_by(func.weekday(DublinBike.scraping_time))\
+        .group_by(func.weekday(DublinBike.localtime))\
+        .order_by(func.weekday(DublinBike.localtime))\
         .all()
 
     dow = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
