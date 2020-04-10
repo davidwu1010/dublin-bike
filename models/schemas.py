@@ -93,6 +93,7 @@ class DublinBike(Base):
     status = Column(String(16))
     banking = Column(Boolean)
     bonus = Column(Boolean)
+    localtime = Column(DateTime)
 
     @property
     def serialize(self):
