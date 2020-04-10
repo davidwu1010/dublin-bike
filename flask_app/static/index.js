@@ -335,10 +335,8 @@ var initMap = () => {
           lat: position.coords.latitude,
           lng: position.coords.longitude
         };
-        console.log("position"+position);
-        infowindow.setPosition(pos);
-        infowindow.setContent('You are here!');
-        infowindow.open(map);
+        // The marker, positioned at user location
+        var marker = new google.maps.Marker({position: pos, map: map});
         map.setCenter(pos);
       }, function() {
         handleLocationError(true, infowindow, map.getCenter());
