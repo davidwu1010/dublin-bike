@@ -31,9 +31,6 @@ button {
 
 img {
     overflow: hidden;
-}
-
-img {
     max-height: 100%;
     max-width: 100%;
     width: auto;
@@ -42,13 +39,7 @@ img {
 
 #station, #occupancy, #weather {
     border-bottom: 1px solid #D3D3D3;
-    margin: 20px 0px 20px 0px;
 }
-
-#occupancy, #weather, #chart {
-    text-align: center;
-}
-
 
 #weather {
     font-size: 12px;
@@ -58,7 +49,7 @@ img {
     width: auto;
 }
 
-.preNextBtn{
+.preNextBtn {
     background-color: transparent;
     color: Gray;
     position: relative;
@@ -70,11 +61,6 @@ img {
     padding: 0;
 }
 
-
-#station_info {
-    padding-left: 10px;
-}
-
 #sidebar {
     overflow-y: scroll;
 }
@@ -82,6 +68,20 @@ img {
 #sidebar > * {
     padding: 0;
     margin: 0;
+}
+
+#station_info, #occupancy, #weather, #chart {
+    padding: 10px 20px;
+}
+
+#occupancy, #weather, #chart {
+    text-align: center;
+}
+
+.list-group-item:hover {
+  background-color: rgb(220,220,220, 0.3);
+  border: 0px;
+  color: #1d9fa3;
 }
 
 #weather-widget {

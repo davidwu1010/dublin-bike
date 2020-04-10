@@ -186,7 +186,7 @@ function showDetails(station, weathers) {
         </div>
         <div class="row" id="station">
              <div class="col" >
-                <p id="station_info">${station.site_names}<br>${station.status}<br>${station.address}
+                <p id="station_info"><b>${station.site_names}</b><br>${station.address}<br>Station is ${station.status}
                      <br>${station.available_bike + "/" + station.bike_stand} bikes available</p>
             </div>
         </div>
