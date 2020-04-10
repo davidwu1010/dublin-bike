@@ -186,7 +186,7 @@ function showDetails(station, weathers) {
         </div>
         <div class="row" id="station">
              <div class="col" >
-                <p id="station_info">${station.site_names}<br>${station.status}<br>${station.address}
+                <p id="station_info"><b>${station.site_names}</b><br>${station.address}<br>Station is ${station.status}
                      <br>${station.available_bike + "/" + station.bike_stand} bikes available</p>
             </div>
         </div>
@@ -335,10 +335,8 @@ var initMap = () => {
           lat: position.coords.latitude,
           lng: position.coords.longitude
         };
-        console.log("position"+position);
-        infowindow.setPosition(pos);
-        infowindow.setContent('You are here!');
-        infowindow.open(map);
+        // The marker, positioned at user location
+        var marker = new google.maps.Marker({position: pos, map: map});
         map.setCenter(pos);
       }, function() {
         handleLocationError(true, infowindow, map.getCenter());
