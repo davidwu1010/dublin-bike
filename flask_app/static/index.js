@@ -318,79 +318,88 @@ function showList(data) {
 }
 
 var initMap = () => {
-    this.map = new google.maps.Map(
+
+    //Check internet connection
+    var status = navigator.onLine;
+    if (status) {
+        this.map = new google.maps.Map(
         document.getElementById('map'), {
             zoom: 15,
             center: {lat: 53.3568, lng: -6.26814},  // Blessington Street station
             fullscreenControl: false
         });
 
-    this.infowindow = new google.maps.InfoWindow();
+        this.infowindow = new google.maps.InfoWindow();
 
-    // Try HTML5 geolocation.
-    //Setting and Scrolling user's location
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-        var pos = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-        // The marker, positioned at user location
-        var marker = new google.maps.Marker({position: pos, map: map});
-        map.setCenter(pos);
-      }, function() {
-        handleLocationError(true, infowindow, map.getCenter());
-      });
-    } else {
-        // Browser doesn't support Geolocation
-        handleLocationError(false, infowindow, map.getCenter());
-    }
+        // Try HTML5 geolocation.
+        //Setting and Scrolling user's location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+            var pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            // The marker, positioned at user location
+            var marker = new google.maps.Marker({position: pos, map: map});
+            map.setCenter(pos);
+          }, function() {
+            handleLocationError(true, infowindow, map.getCenter());
+          });
+        } else {
+            // Browser doesn't support Geolocation
+            handleLocationError(false, infowindow, map.getCenter());
+        }
+        this.circles = new Map();  // HashMap not Google Map
 
-    this.circles = new Map();  // HashMap not Google Map
-    $.getJSON('/api/stations/', data => {
-        for (const station of data.data) {
-            const availability = station.available_bike / station.bike_stand;
+        $.getJSON('/api/stations/', data => {
+            for (const station of data.data) {
+                const availability = station.available_bike / station.bike_stand;
 
-            let color;
-            if (availability <= 0.1) {
-                color = 'red';
-            } else if (availability <= 0.4) {
-                color = 'orange';
-            } else {
-                color = 'green';
+                let color;
+                if (availability <= 0.1) {
+                    color = 'red';
+                } else if (availability <= 0.4) {
+                    color = 'orange';
+                } else {
+                    color = 'green';
+                }
+
+                const circle = new google.maps.Circle({
+                    strokeColor: 'white',
+                    strokeOpacity: 0.4,
+                    fillColor: color,
+                    fillOpacity: 0.6,
+                    map: this.map,
+                    center: {
+                        lat: station.latitude,
+                        lng: station.longitude
+                    },
+                    radius: station.bike_stand * 2
+                });
+                circles.set(station.number, circle);
             }
 
-            const circle = new google.maps.Circle({
-                strokeColor: 'white',
-                strokeOpacity: 0.4,
-                fillColor: color,
-                fillOpacity: 0.6,
-                map: this.map,
-                center: {
-                    lat: station.latitude,
-                    lng: station.longitude
-                },
-                radius: station.bike_stand * 2
+            for (const pair of circles) {
+                let [id, circle] = pair;
+                circle.addListener('click', () => clickHandler(id));
+            }
+
+            showList(data);
             });
-            circles.set(station.number, circle);
-        }
-
-        for (const pair of circles) {
-            let [id, circle] = pair;
-            circle.addListener('click', () => clickHandler(id));
-        }
-
-        showList(data);
-    });
-    $.getJSON('/api/weather/29', ( {current} ) => {
-        const { description, icon, temperature } = current;
-        $('#weather-widget-description').text(description);
-        $('#weather-widget-icon').attr('src',
-            `https://www.weatherbit.io/static/img/icons/${icon}.png`);
-        $('#weather-widget-temperature').text(temperature + '°');
-        $('#weather-widget').css('display', 'block');
-    });
+            $.getJSON('/api/weather/29', ( {current} ) => {
+            const { description, icon, temperature } = current;
+            $('#weather-widget-description').text(description);
+            $('#weather-widget-icon').attr('src',
+                `https://www.weatherbit.io/static/img/icons/${icon}.png`);
+            $('#weather-widget-temperature').text(temperature + '°');
+            $('#weather-widget').css('display', 'block');
+            });
+    //If no internet connection, show a alert
+    } else {
+        alert('No internet Connection! Please try again.');
+    }
 };
+
 
 function handleLocationError(browserHasGeolocation, infoWindow, pos) {
     infowindow.setPosition(pos);
