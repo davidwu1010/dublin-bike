@@ -23,29 +23,38 @@ def index():
 
 @app.route('/api/weather/<int:station_id>')
 def get_weather(station_id):
+    """Return the weather of the station"""
     # get forecast weather data from db
     forecasts = db.session.query(Forecast) \
         .filter(Forecast.stationNum == station_id,
                 Forecast.timestamp > datetime.utcnow()) \
-        .order_by(Forecast.timestamp.asc()).all()
+        .order_by(Forecast.timestamp.asc()) \
+        .all()
 
     # get current weather data from db
     current_weather = db.session.query(CurrentWeather) \
         .filter(CurrentWeather.stationNum == station_id) \
-        .order_by(CurrentWeather.datetime.desc()).first()
+        .order_by(CurrentWeather.datetime.desc())\
+        .first()
 
     data = {'current': current_weather.serialize,
             'forecast': [forecast.serialize for forecast in forecasts]}
+
     return jsonify(data)
 
 
 @app.route('/api/stations/')
 def get_all_stations():
+    """Return details of all stations"""
     latest_scraping_time = db.session \
-        .query(func.max(DublinBike.scraping_time)).one()[0]
+        .query(func.max(DublinBike.scraping_time)) \
+        .one()[0]
+
     stations = db.session.query(DublinBike) \
         .filter(DublinBike.scraping_time == latest_scraping_time) \
-        .order_by(DublinBike.number.asc()).all()
+        .order_by(DublinBike.number.asc()) \
+        .all()
+
     return jsonify({
         'data': [station.serialize for station in stations]
     })
@@ -53,9 +62,12 @@ def get_all_stations():
 
 @app.route('/api/stations/<int:station_id>')
 def get_station(station_id):
+    """Return details of the station"""
     station = db.session.query(DublinBike) \
         .filter(DublinBike.number == station_id) \
-        .order_by(DublinBike.scraping_time.desc()).first()
+        .order_by(DublinBike.scraping_time.desc()) \
+        .first()
+
     return jsonify({
         'data': station.serialize
     })
@@ -63,11 +75,12 @@ def get_station(station_id):
 
 @app.route("/api/hourly/<int:station_id>")
 def hourly_chart(station_id):
-    results = db.session\
-        .query(func.avg(DublinBike.available_bike))\
-        .filter(DublinBike.number == station_id)\
-        .group_by(func.hour(DublinBike.localtime))\
-        .order_by(func.hour(DublinBike.localtime))\
+    """Return the hourly average bikes available of the station"""
+    results = db.session \
+        .query(func.avg(DublinBike.available_bike)) \
+        .filter(DublinBike.number == station_id) \
+        .group_by(func.hour(DublinBike.localtime)) \
+        .order_by(func.hour(DublinBike.localtime)) \
         .all()
 
     return jsonify([
@@ -78,11 +91,12 @@ def hourly_chart(station_id):
 
 @app.route("/api/daily/<int:station_id>")
 def daily_chart(station_id):
-    results = db.session\
-        .query(func.avg(DublinBike.available_bike))\
-        .filter(DublinBike.number == station_id)\
-        .group_by(func.weekday(DublinBike.localtime))\
-        .order_by(func.weekday(DublinBike.localtime))\
+    """Return the daily average bikes available of the station"""
+    results = db.session \
+        .query(func.avg(DublinBike.available_bike)) \
+        .filter(DublinBike.number == station_id) \
+        .group_by(func.weekday(DublinBike.localtime)) \
+        .order_by(func.weekday(DublinBike.localtime)) \
         .all()
 
     dow = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -94,6 +108,7 @@ def daily_chart(station_id):
 
 @app.route('/api/prediction/<int:station_id>')
 def get_prediction_daily_chart(station_id):
+    """Return the bike availability prediction for the next 7 days"""
     data = bike_predict_daily(station_id, db.engine, model)
     return data
 
