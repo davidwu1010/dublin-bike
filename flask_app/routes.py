@@ -5,11 +5,15 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
 import config
 from datetime import datetime
+import joblib
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = config.MySQL.URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+
+model_name = 'lgbm_model_daily.pkl'
+model = joblib.load(model_name)
 
 
 @app.route('/')
@@ -90,7 +94,7 @@ def daily_chart(station_id):
 
 @app.route('/api/get_prediction_daily/<int:station_id>')
 def get_prediction_daily_chart(station_id):
-    data = bike_predict_daily(station_id)
+    data = bike_predict_daily(station_id, db.engine, model)
     return data
 
 
