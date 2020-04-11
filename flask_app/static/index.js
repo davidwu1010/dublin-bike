@@ -9,7 +9,7 @@ var predictionChart;
 
 function showPrediction(id) {
 
-    $.getJSON('/api/get_prediction_daily/' + id, data => {
+    $.getJSON('/api/prediction/' + id, data => {
         predictionData = data;
         var predict_data = data[weekdays[weekdayIndex].substring(0, 3)];
 

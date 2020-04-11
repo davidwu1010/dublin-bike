@@ -92,7 +92,7 @@ def daily_chart(station_id):
     ])
 
 
-@app.route('/api/get_prediction_daily/<int:station_id>')
+@app.route('/api/prediction/<int:station_id>')
 def get_prediction_daily_chart(station_id):
     data = bike_predict_daily(station_id, db.engine, model)
     return data
