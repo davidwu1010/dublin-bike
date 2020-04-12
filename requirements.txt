@@ -9,3 +9,4 @@ Flask==1.1.1
 flask_sqlalchemy
 matplotlib
 lightgbm
+flask_caching

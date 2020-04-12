@@ -2,6 +2,7 @@ from flask import Flask, render_template, jsonify
 from flask_app.daily_predict import bike_predict_daily
 from models.schemas import Forecast, CurrentWeather, DublinBike
 from flask_sqlalchemy import SQLAlchemy
+from flask_caching import Cache
 from sqlalchemy import func
 import config
 from datetime import datetime
@@ -10,18 +11,24 @@ import joblib
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = config.MySQL.URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['CACHE_TYPE'] = 'simple'
+app.config['CACHE_DEFAULT_TIMEOUT'] = 300
+
 db = SQLAlchemy(app)
+cache = Cache(app)
 
 model_name = 'lgbm_model_daily.pkl'
 model = joblib.load(model_name)
 
 
 @app.route('/')
+@cache.cached()
 def index():
     return render_template('index.html')
 
 
 @app.route('/api/weather/<int:station_id>')
+@cache.cached(timeout=60)
 def get_weather(station_id):
     """Return the weather of the station"""
     # get forecast weather data from db
@@ -44,6 +51,7 @@ def get_weather(station_id):
 
 
 @app.route('/api/stations/')
+@cache.cached()
 def get_all_stations():
     """Return details of all stations"""
     latest_scraping_time = db.session \
@@ -61,6 +69,7 @@ def get_all_stations():
 
 
 @app.route('/api/stations/<int:station_id>')
+@cache.cached()
 def get_station(station_id):
     """Return details of the station"""
     station = db.session.query(DublinBike) \
@@ -74,6 +83,7 @@ def get_station(station_id):
 
 
 @app.route("/api/hourly/<int:station_id>")
+@cache.cached()
 def hourly_chart(station_id):
     """Return the hourly average bikes available of the station"""
     results = db.session \
@@ -90,6 +100,7 @@ def hourly_chart(station_id):
 
 
 @app.route("/api/daily/<int:station_id>")
+@cache.cached()
 def daily_chart(station_id):
     """Return the daily average bikes available of the station"""
     results = db.session \
@@ -107,6 +118,7 @@ def daily_chart(station_id):
 
 
 @app.route('/api/prediction/<int:station_id>')
+@cache.cached()
 def get_prediction_daily_chart(station_id):
     """Return the bike availability prediction for the next 7 days"""
     data = bike_predict_daily(station_id, db.engine, model)
