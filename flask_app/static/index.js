@@ -2,6 +2,7 @@
 
 var stationId = 1;
 var weekdayIndex = 1;
+var weekdayToday;
 let weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 var readyCharts = 0;
 var predictionData;
@@ -38,7 +39,7 @@ function showHourly(id) {
             return item.available_bike;
         });
 
-        createChart('line', 'Hourly Average Bike Available', labels, data, "hourly-chart");
+        createChart('line', 'Hourly Average Bikes Available', labels, data, "hourly-chart");
     });
 }
 
@@ -53,7 +54,7 @@ function showDaily(id) {
             return item.available_bike;
         });
 
-        createChart('line', 'Daily Average Bike Available', labels, data, "daily-chart", 'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)');
+        createChart('line', 'Daily Average Bikes Available', labels, data, "daily-chart", 'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)');
     });
 }
 
@@ -124,6 +125,7 @@ function clickHandler(id) {  // handler for click on markers or list items
         infowindow.open(map);
     }).then(() => {
         weekdayIndex = new Date().getDay();
+        weekdayToday = weekdayIndex;
         setWeekday();
         readyCharts = 0;
         showPrediction(id);
@@ -251,8 +253,7 @@ function nextBtnClick() {
 }
 
 function setWeekday(){
-
-    document.getElementById("weekday").innerHTML = weekdays[weekdayIndex];
+    $('#weekday').html(weekdayIndex == weekdayToday ? 'Today' : ('Next ' + weekdays[weekdayIndex]));
 }
 
 function reloadCanvas() {

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+    <link rel="icon" href="{{ url_for('static', filename='favicon.png') }}">
     <link rel="stylesheet"
           href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
@@ -33,10 +33,10 @@
 </head>
 
 <body class="overflow-hidden">
-<!--The div element for the map -->
 <div class="container-fluid p-0">
     <div class="row">
         <div class="col-3 p-0 vh-100 shadow d-flex flex-column" id="sidebar"></div>
+        <!--The div element for the map -->
         <div class="col-9" id="map"></div>
         <div id="weather-widget" class="border shadow-lg text-center">
             <img id="weather-widget-icon" src=""/>
@@ -45,7 +45,6 @@
             <h2 id="weather-widget-temperature"></h2>
         </div>
     </div>
-
 </div>
 </body>
 <script src="{{ url_for('static', filename='index.js') }}"></script>
