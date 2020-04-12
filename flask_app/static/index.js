@@ -45,7 +45,6 @@ function showHourly(id) {
 
 function showDaily(id) {
     $.getJSON('/api/daily/' + id, daily_data => {
-         console.log(daily_data);
         var labels = daily_data.map(function (item) {
             return item.day_of_week;
         });
