@@ -7,6 +7,15 @@ import pandas as pd
 import numpy as np
 import joblib
 
+import datetime
+import pytz
+from sqlalchemy import create_engine
+from models.schemas import Base
+from config import MySQL
+import pandas as pd
+import numpy as np
+import joblib
+
 
 def bike_predict_daily(number_input):
     host = MySQL.host
@@ -19,7 +28,7 @@ def bike_predict_daily(number_input):
     Base.metadata.create_all(engine)
 
     # Calibrate the query ata amount by current time
-    hour_left = 1728 + (23 - datetime.datetime.utcnow( ).hour)
+    hour_left = 2016 - (datetime.datetime.utcnow( ).hour)
 
     query_bike = "SELECT * \
                   FROM development.dublin_bike\
@@ -90,11 +99,13 @@ def bike_predict_daily(number_input):
 
     bike_df = labeling_eval(bike_df)
     combined_df = merge_df(bike_df, weather_df)
+    combined_df
 
     combined_df = data_type_conversion(combined_df)
     combined_df = data_cleaning(combined_df)
     combined_df = datetime_conversion(combined_df, "scraping_time")
-    daily_df = combined_df.resample('H', on='scraping_time').mean( ).reset_index( )
+    daily_df = combined_df.resample('H', on='scraping_time').mean( ).sort_values('hour').reset_index( )
+
     weekday = (7 - ((8 - daily_df['weekday']) % 7)).astype('int32')
     hour = daily_df['hour'].astype('int32')
     daily_df = time_transform(daily_df, 'weekday', 7)
@@ -120,3 +131,5 @@ def bike_predict_daily(number_input):
         predict_daily_json[i] = data.loc[i, ['number', 'hour', 'bike_predict']].to_dict(orient='records')
 
     return predict_daily_json
+
+
