@@ -73,3 +73,4 @@ def scrape(dt):
 
     else:
         print('Can not find stations')
+    session.close()

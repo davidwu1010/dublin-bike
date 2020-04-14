@@ -2,6 +2,7 @@
 
 var stationId = 1;
 var weekdayIndex = 1;
+var weekdayToday;
 let weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 var readyCharts = 0;
 var predictionData;
@@ -9,7 +10,7 @@ var predictionChart;
 
 function showPrediction(id) {
 
-    $.getJSON('/api/get_prediction_daily/' + id, data => {
+    $.getJSON('/api/prediction/' + id, data => {
         predictionData = data;
         var predict_data = data[weekdays[weekdayIndex].substring(0, 3)];
 
@@ -38,13 +39,12 @@ function showHourly(id) {
             return item.available_bike;
         });
 
-        createChart('line', 'Hourly Average Bike Available', labels, data, "hourly-chart");
+        createChart('line', 'Hourly Average Bikes Available', labels, data, "hourly-chart");
     });
 }
 
 function showDaily(id) {
     $.getJSON('/api/daily/' + id, daily_data => {
-         console.log(daily_data);
         var labels = daily_data.map(function (item) {
             return item.day_of_week;
         });
@@ -53,7 +53,7 @@ function showDaily(id) {
             return item.available_bike;
         });
 
-        createChart('line', 'Daily Average Bike Available', labels, data, "daily-chart", 'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)');
+        createChart('line', 'Daily Average Bikes Available', labels, data, "daily-chart", 'rgba(75, 192, 192, 0.2)', 'rgba(75, 192, 192, 1)');
     });
 }
 
@@ -124,6 +124,7 @@ function clickHandler(id) {  // handler for click on markers or list items
         infowindow.open(map);
     }).then(() => {
         weekdayIndex = new Date().getDay();
+        weekdayToday = weekdayIndex;
         setWeekday();
         readyCharts = 0;
         showPrediction(id);
@@ -186,7 +187,7 @@ function showDetails(station, weathers) {
         </div>
         <div class="row" id="station">
              <div class="col" >
-                <p id="station_info">${station.site_names}<br>${station.status}<br>${station.address}
+                <p id="station_info"><b>${station.site_names}</b><br>${station.address}<br>Station is ${station.status}
                      <br>${station.available_bike + "/" + station.bike_stand} bikes available</p>
             </div>
         </div>
@@ -251,8 +252,7 @@ function nextBtnClick() {
 }
 
 function setWeekday(){
-
-    document.getElementById("weekday").innerHTML = weekdays[weekdayIndex];
+    $('#weekday').html(weekdayIndex == weekdayToday ? 'Today' : ('Next ' + weekdays[weekdayIndex]));
 }
 
 function reloadCanvas() {
@@ -321,7 +321,7 @@ var initMap = () => {
     this.map = new google.maps.Map(
         document.getElementById('map'), {
             zoom: 15,
-            center: {lat: 53.342964, lng: -6.286889},  // dublin center
+            center: {lat: 53.3568, lng: -6.26814},  // Blessington Street station
             fullscreenControl: false
         });
 
@@ -335,10 +335,8 @@ var initMap = () => {
           lat: position.coords.latitude,
           lng: position.coords.longitude
         };
-        console.log("position"+position);
-        infowindow.setPosition(pos);
-        infowindow.setContent('You are here!');
-        infowindow.open(map);
+        // The marker, positioned at user location
+        var marker = new google.maps.Marker({position: pos, map: map});
         map.setCenter(pos);
       }, function() {
         handleLocationError(true, infowindow, map.getCenter());
@@ -396,5 +394,6 @@ var initMap = () => {
 
 function handleLocationError(browserHasGeolocation, infoWindow, pos) {
     infowindow.setPosition(pos);
+    infowindow.setContent('Blessington Street');
     infowindow.open(map);
 }

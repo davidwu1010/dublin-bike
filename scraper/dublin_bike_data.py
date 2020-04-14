@@ -5,6 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from models.schemas import Base, DublinBike
 from config import MySQL, APIKeys
 import current_weather_scraper
+import pytz
 
 '''Call the scraper and save the data in the DB'''
 def scrape():
@@ -22,7 +23,8 @@ def scrape():
 
     if response:
         response = response.json()
-        dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        utc_now = datetime.utcnow()
+        dt = utc_now.strftime("%Y-%m-%d %H:%M:%S")
         current_weather_scraper.scrape(dt)
 
         #Build table with columns
@@ -40,6 +42,8 @@ def scrape():
             status = row["status"]
             banking = row["banking"]
             bonus = row["bonus"]
+            localtime = pytz.utc.localize(utc_now)\
+                .astimezone(pytz.timezone('Europe/Dublin'))
             session.add(DublinBike(scraping_time=scraping_time,
                                    number=number,
                                    last_update=last_update,
@@ -52,9 +56,11 @@ def scrape():
                                    available_bike=available_bike,
                                    status=status,
                                    banking=banking,
-                                   bonus=bonus))
+                                   bonus=bonus,
+                                   localtime=localtime))
 
         session.commit()
+        session.close()
         return dt
 
 

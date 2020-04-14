@@ -64,7 +64,7 @@ def scrape():
             session.commit()
     else:
         print('Can not find stations')
-
+    session.close()
 
 if __name__ == '__main__':
     scrape()
